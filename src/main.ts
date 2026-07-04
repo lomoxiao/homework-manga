@@ -12,6 +12,7 @@ import { blobToBase64, prepareHomeworkImage } from "./upload";
 import rawAssetCatalog from "../public/assets/metadata.json";
 import { assetCatalogSchema } from "./assets";
 import { normalizeRemoteAnalysis } from "./remoteAnalysis";
+import { remoteJobProgress } from "./remoteJobStatus";
 
 const app = document.querySelector<HTMLElement>("#app")!;
 if (!app) throw new Error("#app was not found");
@@ -93,7 +94,7 @@ async function renderRemoteJob(jobId: string, uid: string, job: RemoteHomeworkJo
   if (job.ownerUid !== uid) { app.innerHTML = `<section class="workflow-card"><h2>アクセスできません</h2><p>この宿題の所有者ではありません。</p></section>`; return; }
   if (job.status === "delete_requested" || job.status === "deleting") { app.innerHTML = `<section class="workflow-card progress-screen"><div class="spinner"></div><h2>削除を処理しています</h2><p>Botが起動すると、Google Drive画像とジョブを削除します。この画面は閉じて構いません。</p></section>`; return; }
   if (job.status === "failed") { app.innerHTML = `<section class="workflow-card"><h2>解析に失敗しました</h2><p class="warning">${escapeHtml(job.error ?? "原因不明")}</p>${job.trigger?.provider === "web" ? `<button id="retry-remote" class="primary">&#35299;&#26512;&#12434;&#20877;&#23455;&#34892;</button>` : ""}</section>`; document.querySelector("#retry-remote")?.addEventListener("click", async () => { await retryHomeworkViaGas(await getFirebaseIdToken(), jobId); }); return; }
-  if (!job.analysis) { app.innerHTML = `<section class="workflow-card progress-screen"><div class="spinner"></div><h2>宿題写真を解析しています</h2><p>${escapeHtml(job.stage)}</p></section>`; return; }
+  if (!job.analysis) { const progress = remoteJobProgress(job.status); app.innerHTML = `<section class="workflow-card progress-screen"><div class="spinner"></div><h2>${escapeHtml(progress.title)}</h2><p>${escapeHtml(progress.detail)}</p></section>`; return; }
   const analysis = normalizeRemoteAnalysis(job.analysis);
   if (activeRemoteJobId !== job.id) {
     activeRemoteJobId = job.id;

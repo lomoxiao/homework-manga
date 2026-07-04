@@ -9,13 +9,43 @@ function createHomeworkUpload_(input) {
 
   const mime = String(input.contentType || '').toLowerCase();
   if (HOMEWORK_ALLOWED_MIME_.indexOf(mime) < 0) throw new Error('Unsupported image type.');
-  const bytes = Utilities.base64Decode(String(input.base64 || ''));
+  const encoded = String(input.base64 || '');
+  const bytes = Utilities.base64Decode(encoded);
   if (!bytes.length || bytes.length > HOMEWORK_MAX_BYTES_) throw new Error('Image must be 5MB or less.');
+  const decodedSha256 = sha256Hex_(bytes);
 
   const jobId = 'homework-' + Utilities.getUuid().replace(/-/g, '');
   const extension = mime === 'image/png' ? 'png' : mime === 'image/webp' ? 'webp' : (mime === 'image/heic' || mime === 'image/heif') ? 'heic' : 'jpg';
   const folder = DriveApp.getFolderById(requireProperty_(properties, 'HOMEWORK_DRIVE_FOLDER_ID'));
-  const file = folder.createFile(Utilities.newBlob(bytes, mime, jobId + '.' + extension));
+  const blob = Utilities.newBlob(bytes, mime, jobId + '.' + extension);
+  const blobBytes = blob.getBytes();
+  const blobSha256 = sha256Hex_(blobBytes);
+  logHomeworkUploadDiagnostic_({
+    stage: 'blob_created',
+    jobId: jobId,
+    base64Length: encoded.length,
+    decodedByteLength: bytes.length,
+    decodedSha256: decodedSha256,
+    blobByteLength: blobBytes.length,
+    blobSha256: blobSha256
+  });
+
+  const file = folder.createFile(blob);
+  const reloadedFile = DriveApp.getFileById(file.getId());
+  const reloadedBytes = reloadedFile.getBlob().getBytes();
+  logHomeworkUploadDiagnostic_({
+    stage: 'drive_reloaded',
+    jobId: jobId,
+    base64Length: encoded.length,
+    decodedByteLength: bytes.length,
+    decodedSha256: decodedSha256,
+    blobByteLength: blobBytes.length,
+    blobSha256: blobSha256,
+    createdFileId: file.getId(),
+    createdFileSize: file.getSize(),
+    reloadedBlobSize: reloadedBytes.length,
+    reloadedSha256: sha256Hex_(reloadedBytes)
+  });
   try {
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     file.setDescription(JSON.stringify({ workflow: 'homework-manga', jobId: jobId, ownerUid: ownerUid }));
@@ -96,4 +126,15 @@ function requireProperty_(properties, name) {
   const value = properties.getProperty(name);
   if (!value) throw new Error(name + ' is not set.');
   return value;
+}
+
+
+function sha256Hex_(bytes) {
+  return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, bytes)
+    .map(function(value) { return ('0' + ((value + 256) % 256).toString(16)).slice(-2); })
+    .join('');
+}
+
+function logHomeworkUploadDiagnostic_(diagnostic) {
+  console.log('[homework-upload-diagnostic] ' + JSON.stringify(diagnostic));
 }
