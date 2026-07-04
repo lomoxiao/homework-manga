@@ -16,6 +16,7 @@ export type RemoteHomeworkJob = {
   ownerUid: string;
   status: string;
   stage: string;
+  trigger?: { provider: "web"; requestedBy: string; slackTriggerSentAt?: string };
   sourceImage?: {
     provider: "google_drive";
     fileId: string;
@@ -36,6 +37,14 @@ const db = app ? getDatabase(app) : null;
 export function observeAuth(callback: (user: User | null) => void) {
   if (!auth) return () => {};
   return onAuthStateChanged(auth, callback);
+}
+
+export function getSignedInUser() { return auth?.currentUser ?? null; }
+
+export async function getFirebaseIdToken() {
+  const user = getSignedInUser();
+  if (!user) throw new Error("Google login is required.");
+  return user.getIdToken();
 }
 
 export async function loginWithGoogle() {

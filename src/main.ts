@@ -6,7 +6,9 @@ import { generateScenario } from "./scenarioGenerator";
 import { createWorkspace, loadWorkspace, saveWorkspace, WORKSPACE_KEY } from "./workspace";
 import { renderBarModel } from "./svg/barModel";
 import { emphasize, escapeHtml } from "./utils";
-import { approveHomeworkJob, firebaseConfigured, loginWithGoogle, observeAuth, observeHomeworkJob, requestHomeworkDeletion, type RemoteHomeworkJob } from "./firebaseClient";
+import { approveHomeworkJob, firebaseConfigured, getFirebaseIdToken, loginWithGoogle, observeAuth, observeHomeworkJob, requestHomeworkDeletion, type RemoteHomeworkJob } from "./firebaseClient";
+import { homeworkGasConfigured, retryHomeworkViaGas, uploadHomeworkToGas } from "./homeworkGasClient";
+import { blobToBase64, prepareHomeworkImage } from "./upload";
 import rawAssetCatalog from "../public/assets/metadata.json";
 import { assetCatalogSchema } from "./assets";
 import { normalizeRemoteAnalysis } from "./remoteAnalysis";
@@ -33,7 +35,43 @@ document.documentElement.style.setProperty("--font-family", renderConfig.theme.f
 
 const remoteJobId = new URLSearchParams(window.location.search).get("job");
 if (remoteJobId) startRemoteMode(remoteJobId);
+else if (firebaseConfigured && homeworkGasConfigured) startWebUploadMode();
 else render();
+
+function startWebUploadMode(): void {
+  observeAuth((user) => {
+    if (!user) {
+      app.innerHTML = '<section class="workflow-card auth-screen"><h2>&#23487;&#38988;&#20889;&#30495;&#12434;&#36865;&#12427;</h2><p>&#35377;&#21487;&#12373;&#12428;&#12383;Google&#12450;&#12459;&#12454;&#12531;&#12488;&#12391;&#12525;&#12464;&#12452;&#12531;&#12375;&#12390;&#12367;&#12384;&#12373;&#12356;&#12290;</p><button id="google-login" class="primary">Google&#12391;&#12525;&#12464;&#12452;&#12531;</button></section>';
+      document.querySelector("#google-login")?.addEventListener("click", () => void loginWithGoogle());
+      return;
+    }
+    app.innerHTML = '<section class="workflow-card upload-screen"><header class="section-heading"><p>NEW HOMEWORK</p><h2>&#23487;&#38988;&#20889;&#30495;&#12434;&#36865;&#12427;</h2><span>&#20889;&#30495;&#12399;Google Drive&#12408;&#20445;&#23384;&#12375;&#12289;&#35299;&#26512;&#29366;&#27841;&#12399;&#12371;&#12398;&#30011;&#38754;&#12391;&#30906;&#35469;&#12391;&#12365;&#12414;&#12377;&#12290;</span></header><form id="web-upload-form"><label class="drop-zone"><input id="web-photo-input" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" capture="environment" /><b>&#8593;</b><strong>&#25774;&#24433;&#12414;&#12383;&#12399;&#20889;&#30495;&#12434;&#36984;&#25246;</strong><span>&#36865;&#20449;&#26178;&#12395;&#33258;&#21205;&#22311;&#32302;&#12539;5MB&#12414;&#12391;</span></label><div id="web-photo-preview"></div><p id="upload-error" class="warning" hidden></p><button id="upload-submit" class="primary" type="submit" disabled>&#35299;&#26512;&#12434;&#38283;&#22987;</button></form></section>';
+    let selectedFile: File | undefined;
+    const input = document.querySelector<HTMLInputElement>("#web-photo-input")!;
+    const submit = document.querySelector<HTMLButtonElement>("#upload-submit")!;
+    input.addEventListener("change", () => {
+      selectedFile = input.files?.[0];
+      submit.disabled = !selectedFile;
+      const preview = document.querySelector<HTMLElement>("#web-photo-preview")!;
+      preview.innerHTML = selectedFile ? '<img src="' + URL.createObjectURL(selectedFile) + '" alt="homework preview" />' : "";
+    });
+    document.querySelector<HTMLFormElement>("#web-upload-form")!.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!selectedFile) return;
+      const error = document.querySelector<HTMLElement>("#upload-error")!;
+      try {
+        submit.disabled = true; submit.textContent = "Preparing image..."; error.hidden = true;
+        const prepared = await prepareHomeworkImage(selectedFile);
+        submit.textContent = "Uploading to Drive...";
+        const result = await uploadHomeworkToGas({ idToken: await getFirebaseIdToken(), base64: await blobToBase64(prepared.blob), fileName: prepared.fileName, contentType: prepared.blob.type });
+        window.location.assign("?job=" + encodeURIComponent(result.jobId));
+      } catch (cause) {
+        error.textContent = cause instanceof Error ? cause.message : String(cause); error.hidden = false;
+        submit.disabled = false; submit.textContent = "Retry upload";
+      }
+    });
+  });
+}
 
 function startRemoteMode(jobId: string): void {
   if (!firebaseConfigured) {
@@ -54,7 +92,7 @@ async function renderRemoteJob(jobId: string, uid: string, job: RemoteHomeworkJo
   if (!job) { app.innerHTML = `<section class="workflow-card"><h2>宿題が見つかりません</h2><p>削除済みか、URLが正しくありません。</p></section>`; return; }
   if (job.ownerUid !== uid) { app.innerHTML = `<section class="workflow-card"><h2>アクセスできません</h2><p>この宿題の所有者ではありません。</p></section>`; return; }
   if (job.status === "delete_requested" || job.status === "deleting") { app.innerHTML = `<section class="workflow-card progress-screen"><div class="spinner"></div><h2>削除を処理しています</h2><p>Botが起動すると、Google Drive画像とジョブを削除します。この画面は閉じて構いません。</p></section>`; return; }
-  if (job.status === "failed") { app.innerHTML = `<section class="workflow-card"><h2>解析に失敗しました</h2><p class="warning">${escapeHtml(job.error ?? "原因不明")}</p></section>`; return; }
+  if (job.status === "failed") { app.innerHTML = `<section class="workflow-card"><h2>解析に失敗しました</h2><p class="warning">${escapeHtml(job.error ?? "原因不明")}</p>${job.trigger?.provider === "web" ? `<button id="retry-remote" class="primary">&#35299;&#26512;&#12434;&#20877;&#23455;&#34892;</button>` : ""}</section>`; document.querySelector("#retry-remote")?.addEventListener("click", async () => { await retryHomeworkViaGas(await getFirebaseIdToken(), jobId); }); return; }
   if (!job.analysis) { app.innerHTML = `<section class="workflow-card progress-screen"><div class="spinner"></div><h2>宿題写真を解析しています</h2><p>${escapeHtml(job.stage)}</p></section>`; return; }
   const analysis = normalizeRemoteAnalysis(job.analysis);
   if (activeRemoteJobId !== job.id) {
