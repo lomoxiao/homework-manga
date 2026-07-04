@@ -13,6 +13,7 @@ import rawAssetCatalog from "../public/assets/metadata.json";
 import { assetCatalogSchema } from "./assets";
 import { normalizeRemoteAnalysis } from "./remoteAnalysis";
 import { remoteJobProgress } from "./remoteJobStatus";
+import { resolveDriveDisplayUrl } from "./driveImage";
 
 const app = document.querySelector<HTMLElement>("#app")!;
 if (!app) throw new Error("#app was not found");
@@ -104,9 +105,10 @@ async function renderRemoteJob(jobId: string, uid: string, job: RemoteHomeworkJo
   if (selectedRemoteProblemIndex >= analysis.problems.length) selectedRemoteProblemIndex = 0;
   const selectedProblem = analysis.problems[selectedRemoteProblemIndex];
   const source = job.sourceImage?.provider === "google_drive" ? job.sourceImage : undefined;
-  const imageMarkup = source
-    ? `<img id="homework-source-image" src="${escapeHtml(source.downloadUrl)}" alt="宿題写真" referrerpolicy="no-referrer" /><p id="drive-image-fallback" class="warning" hidden>画像を直接表示できません。<a href="${escapeHtml(source.viewUrl)}" target="_blank" rel="noreferrer">Google Driveで開く</a></p><p class="privacy-note">この画像はリンクを知っている人が閲覧できます。削除処理が完了するまで公開リンクは有効です。</p>`
-    : `<p class="warning">Drive画像情報がありません。</p>`;
+  const displayUrl = source ? resolveDriveDisplayUrl(source) : undefined;
+  const imageMarkup = source && displayUrl
+    ? `<img id="homework-source-image" src="${escapeHtml(displayUrl)}" alt="宿題写真" referrerpolicy="no-referrer" /><p id="drive-image-fallback" class="warning" hidden>画像を直接表示できません。<a href="${escapeHtml(source.viewUrl)}" target="_blank" rel="noreferrer">Google Driveで開く</a></p><p class="privacy-note">この画像はリンクを知っている人が閲覧できます。削除処理が完了するまで公開リンクは有効です。</p>`
+    : source ? `<p class="warning">&#30011;&#20687;&#12434;&#30452;&#25509;&#34920;&#31034;&#12391;&#12365;&#12414;&#12379;&#12435;&#12290;<a href="${escapeHtml(source.viewUrl)}" target="_blank" rel="noreferrer">Google Drive&#12391;&#38283;&#12367;</a></p>` : `<p class="warning">Drive画像情報がありません。</p>`;
   const deletionError = job.status === "delete_failed" ? `<p class="warning">前回の削除に失敗しました: ${escapeHtml(job.error ?? "原因不明")}</p>` : "";
   const candidates = analysis.problems.length > 1 ? `<section class="problem-picker"><h3>漫画にする問題を選択</h3><p>候補を確認し、1問をクリックしてください。</p><div class="problem-candidates">${analysis.problems.map((problem, index) => `<button type="button" class="problem-candidate ${index === selectedRemoteProblemIndex ? "selected" : ""}" data-remote-problem="${index}" aria-pressed="${index === selectedRemoteProblemIndex}"><b>${escapeHtml(problem.id)}</b><span>${escapeHtml(problem.problemText)}</span><small>誤答: ${escapeHtml(problem.studentAnswer)}</small></button>`).join("")}</div></section>` : "";
   const warnings = [...analysis.warnings, ...selectedProblem.warnings];

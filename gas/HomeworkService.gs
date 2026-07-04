@@ -119,7 +119,8 @@ function driveSource_(file, contentType, size) {
   const id = file.getId();
   return { provider: 'google_drive', fileId: id, contentType: contentType, size: size,
     viewUrl: 'https://drive.google.com/file/d/' + id + '/view',
-    downloadUrl: 'https://drive.google.com/uc?export=download&id=' + id };
+    downloadUrl: 'https://drive.google.com/uc?export=download&id=' + id,
+    displayUrl: 'https://drive.google.com/thumbnail?id=' + id + '&sz=w2000' };
 }
 
 function requireProperty_(properties, name) {

@@ -24,6 +24,7 @@ export type RemoteHomeworkJob = {
     size: number;
     viewUrl: string;
     downloadUrl: string;
+    displayUrl?: string;
   };
   analysis?: RemoteHomeworkAnalysis;
   error?: string;
