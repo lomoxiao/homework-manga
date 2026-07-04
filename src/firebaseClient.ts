@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithRedirect, type User } from "firebase/auth";
 import { getDatabase, onValue, ref, update } from "firebase/database";
+import type { RemoteHomeworkAnalysis } from "./remoteAnalysis";
 
 const config = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -23,16 +24,7 @@ export type RemoteHomeworkJob = {
     viewUrl: string;
     downloadUrl: string;
   };
-  analysis?: {
-    problemText: string;
-    studentAnswer: string;
-    correctAnswerCandidate: string;
-    mistakeCause: string;
-    confidence: Record<string, number>;
-    evidence: string[];
-    warnings: string[];
-    needsHumanReview: true;
-  };
+  analysis?: RemoteHomeworkAnalysis;
   error?: string;
 };
 
@@ -56,9 +48,9 @@ export function observeHomeworkJob(jobId: string, callback: (job: RemoteHomework
   return onValue(ref(db, `/homeworkJobs/${jobId}`), (snapshot) => callback(snapshot.exists() ? snapshot.val() as RemoteHomeworkJob : null));
 }
 
-export async function approveHomeworkJob(jobId: string, approvedAnalysis: Record<string, unknown>, mangaPlan: Record<string, unknown>) {
+export async function approveHomeworkJob(jobId: string, selectedProblemId: string, approvedAnalysis: Record<string, unknown>, mangaPlan: Record<string, unknown>) {
   if (!db) throw new Error("Firebase is not configured");
-  await update(ref(db, `/homeworkJobs/${jobId}`), { approvedAnalysis, mangaPlan, status: "completed", stage: "completed", updatedAt: new Date().toISOString() });
+  await update(ref(db, `/homeworkJobs/${jobId}`), { selectedProblemId, approvedAnalysis, mangaPlan, status: "completed", stage: "completed", updatedAt: new Date().toISOString() });
 }
 
 export async function requestHomeworkDeletion(jobId: string) {

@@ -9,6 +9,7 @@ import { emphasize, escapeHtml } from "./utils";
 import { approveHomeworkJob, firebaseConfigured, loginWithGoogle, observeAuth, observeHomeworkJob, requestHomeworkDeletion, type RemoteHomeworkJob } from "./firebaseClient";
 import rawAssetCatalog from "../public/assets/metadata.json";
 import { assetCatalogSchema } from "./assets";
+import { normalizeRemoteAnalysis } from "./remoteAnalysis";
 
 const app = document.querySelector<HTMLElement>("#app")!;
 if (!app) throw new Error("#app was not found");
@@ -22,6 +23,9 @@ let photoName = "";
 let selectedPanel = 1;
 let formErrors: Record<string, string> = {};
 let scenarioWarning = "";
+let activeRemoteJobId = "";
+let selectedRemoteProblemIndex = 0;
+let remoteSelectionConfirmed = false;
 
 document.documentElement.style.setProperty("--primary", renderConfig.theme.primaryColor);
 document.documentElement.style.setProperty("--emphasis", renderConfig.theme.emphasisColor);
@@ -52,13 +56,27 @@ async function renderRemoteJob(jobId: string, uid: string, job: RemoteHomeworkJo
   if (job.status === "delete_requested" || job.status === "deleting") { app.innerHTML = `<section class="workflow-card progress-screen"><div class="spinner"></div><h2>削除を処理しています</h2><p>Botが起動すると、Google Drive画像とジョブを削除します。この画面は閉じて構いません。</p></section>`; return; }
   if (job.status === "failed") { app.innerHTML = `<section class="workflow-card"><h2>解析に失敗しました</h2><p class="warning">${escapeHtml(job.error ?? "原因不明")}</p></section>`; return; }
   if (!job.analysis) { app.innerHTML = `<section class="workflow-card progress-screen"><div class="spinner"></div><h2>宿題写真を解析しています</h2><p>${escapeHtml(job.stage)}</p></section>`; return; }
-  const analysis = job.analysis;
+  const analysis = normalizeRemoteAnalysis(job.analysis);
+  if (activeRemoteJobId !== job.id) {
+    activeRemoteJobId = job.id;
+    selectedRemoteProblemIndex = 0;
+    remoteSelectionConfirmed = analysis.problems.length === 1;
+  }
+  if (selectedRemoteProblemIndex >= analysis.problems.length) selectedRemoteProblemIndex = 0;
+  const selectedProblem = analysis.problems[selectedRemoteProblemIndex];
   const source = job.sourceImage?.provider === "google_drive" ? job.sourceImage : undefined;
   const imageMarkup = source
     ? `<img id="homework-source-image" src="${escapeHtml(source.downloadUrl)}" alt="宿題写真" referrerpolicy="no-referrer" /><p id="drive-image-fallback" class="warning" hidden>画像を直接表示できません。<a href="${escapeHtml(source.viewUrl)}" target="_blank" rel="noreferrer">Google Driveで開く</a></p><p class="privacy-note">この画像はリンクを知っている人が閲覧できます。削除処理が完了するまで公開リンクは有効です。</p>`
     : `<p class="warning">Drive画像情報がありません。</p>`;
   const deletionError = job.status === "delete_failed" ? `<p class="warning">前回の削除に失敗しました: ${escapeHtml(job.error ?? "原因不明")}</p>` : "";
-  app.innerHTML = `<section class="workflow-card"><header class="section-heading"><p>HOMEWORK JOB</p><h2>解析結果を確認</h2><span>内容を修正してから漫画シナリオへ進んでください。</span></header><div class="review-layout"><div class="photo-review">${imageMarkup}</div><form id="remote-review" class="draft-form">${remoteField("problemText", "問題文", analysis.problemText, analysis.confidence.problemText)}${remoteField("studentAnswer", "子どもの答え", analysis.studentAnswer, analysis.confidence.studentAnswer)}${remoteField("correctAnswer", "正しい答え候補", analysis.correctAnswerCandidate, analysis.confidence.correctAnswerCandidate)}${remoteField("mistakeCause", "つまずきの原因", analysis.mistakeCause, analysis.confidence.mistakeCause)}${analysis.warnings.length ? `<p class="warning">${analysis.warnings.map(escapeHtml).join("<br>")}</p>` : ""}${deletionError}<div class="actions split"><button id="delete-remote" type="button">${job.status === "delete_failed" ? "削除を再試行" : "この宿題を削除"}</button><button class="primary" type="submit">承認してシナリオへ</button></div></form></div></section>`;
+  const candidates = analysis.problems.length > 1 ? `<section class="problem-picker"><h3>漫画にする問題を選択</h3><p>候補を確認し、1問をクリックしてください。</p><div class="problem-candidates">${analysis.problems.map((problem, index) => `<button type="button" class="problem-candidate ${index === selectedRemoteProblemIndex ? "selected" : ""}" data-remote-problem="${index}" aria-pressed="${index === selectedRemoteProblemIndex}"><b>${escapeHtml(problem.id)}</b><span>${escapeHtml(problem.problemText)}</span><small>誤答: ${escapeHtml(problem.studentAnswer)}</small></button>`).join("")}</div></section>` : "";
+  const warnings = [...analysis.warnings, ...selectedProblem.warnings];
+  app.innerHTML = `<section class="workflow-card"><header class="section-heading"><p>HOMEWORK JOB</p><h2>解析結果を確認</h2><span>内容を修正してから漫画シナリオへ進んでください。</span></header>${candidates}<div class="review-layout"><div class="photo-review">${imageMarkup}</div><form id="remote-review" class="draft-form"><div class="manual-badge">選択中: ${escapeHtml(selectedProblem.id)}</div>${remoteField("problemText", "問題文", selectedProblem.problemText, selectedProblem.confidence.problemText)}${remoteField("studentAnswer", "子どもの答え", selectedProblem.studentAnswer, selectedProblem.confidence.studentAnswer)}${remoteField("correctAnswer", "正しい答え候補", selectedProblem.correctAnswerCandidate, selectedProblem.confidence.correctAnswerCandidate)}${remoteField("mistakeCause", "つまずきの原因", selectedProblem.mistakeCause, selectedProblem.confidence.mistakeCause)}${warnings.length ? `<p class="warning">${warnings.map(escapeHtml).join("<br>")}</p>` : ""}${deletionError}<div class="actions split"><button id="delete-remote" type="button">${job.status === "delete_failed" ? "削除を再試行" : "この宿題を削除"}</button><button class="primary" type="submit" ${remoteSelectionConfirmed ? "" : "disabled"}>承認してシナリオへ</button></div>${remoteSelectionConfirmed ? "" : `<p class="selection-required">候補を1つクリックすると承認できます。</p>`}</form></div></section>`;
+  document.querySelectorAll<HTMLButtonElement>("[data-remote-problem]").forEach((button) => button.addEventListener("click", () => {
+    selectedRemoteProblemIndex = Number(button.dataset.remoteProblem ?? 0);
+    remoteSelectionConfirmed = true;
+    void renderRemoteJob(jobId, uid, job);
+  }));
   document.querySelector<HTMLImageElement>("#homework-source-image")?.addEventListener("error", (event) => {
     (event.currentTarget as HTMLImageElement).hidden = true;
     const fallback = document.querySelector<HTMLElement>("#drive-image-fallback");
@@ -70,7 +88,7 @@ async function renderRemoteJob(jobId: string, uid: string, job: RemoteHomeworkJo
     const draft = { grade: 4, subject: "math" as const, problemText: String(data.get("problemText")), studentAnswer: String(data.get("studentAnswer")), correctAnswer: String(data.get("correctAnswer")), mistakeCause: String(data.get("mistakeCause")) };
     const parsed = homeworkDraftSchema.parse(draft);
     const generated = generateScenario(parsed);
-    await approveHomeworkJob(jobId, parsed, generated.plan);
+    await approveHomeworkJob(jobId, selectedProblem.id, parsed, generated.plan);
     state = saveWorkspace(localStorage, { ...createWorkspace(generated.plan), step: "scenario", draft: parsed, mangaPlan: generated.plan });
     history.replaceState({}, "", location.pathname);
     render();

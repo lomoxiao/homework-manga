@@ -74,6 +74,14 @@ button.primary { border-color: #ffcd57; color: #172b4d; background: #ffcd57; fon
 .photo-missing { color: #65748a; line-height: 2; text-align: center; }
 .manual-badge { justify-self: start; padding: 5px 9px; border-radius: 99px; color: #5c4b13; background: #fff1b8; font-size: 11px; font-weight: 900; }
 .warning { padding: 10px 12px; border: 1px solid #f4c774; border-radius: 8px; color: #81570a; background: #fff8e9; font-size: 12px; }
+.problem-picker { display: grid; gap: 10px; margin: 18px 0; padding: 16px; border: 1px solid #d8e0ea; border-radius: 12px; background: #f8fafc; }
+.problem-picker h3, .problem-picker p { margin: 0; }
+.problem-candidates { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.problem-candidate { display: grid; gap: 6px; min-width: 0; padding: 12px; border: 2px solid transparent; border-radius: 10px; background: white; text-align: left; }
+.problem-candidate.selected { border-color: var(--primary); background: #eef5ff; }
+.problem-candidate span, .problem-candidate small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.selection-required { margin: 0; color: #9b5f0b; font-size: 12px; text-align: right; }
+button:disabled { cursor: not-allowed; opacity: .5; }
 .auth-screen, .progress-screen { margin-top: 70px; text-align: center; }
 .confidence { justify-self: end; margin-top: -23px; color: #3b8060; font-size: 10px; }
 .low-confidence textarea { border-color: #e59a36; background: #fffaf0; }
