@@ -1,0 +1,11 @@
+node_modules/
+dist/
+private/
+jobs/
+uploads/
+*.local
+*.pdf
+*.png
+*.tsbuildinfo
+vite.config.js
+!public/assets/**/*.png

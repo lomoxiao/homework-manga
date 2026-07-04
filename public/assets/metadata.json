@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1.0",
+  "assets": [
+    {
+      "assetId": "hero-confused-medium-front",
+      "category": "character",
+      "filePath": "assets/characters/hero-confused.svg",
+      "character": "hero",
+      "role": "student",
+      "emotion": "confused",
+      "emotionIntensity": 2,
+      "pose": "thinking",
+      "action": "thinking",
+      "gaze": "upper-right",
+      "facing": "front",
+      "shot": "medium",
+      "cameraAngle": "eye-level",
+      "subjectTags": ["math", "mistake"],
+      "storyBeatTags": ["question", "confusion"],
+      "recommendedPositions": ["left", "center"],
+      "speechBubbleSafeAreas": ["upper-right"],
+      "transparent": true,
+      "mirrorAllowed": true,
+      "width": 320,
+      "height": 420,
+      "license": "original-placeholder"
+    },
+    {
+      "assetId": "teacher-encourage-medium-front",
+      "category": "character",
+      "filePath": "assets/characters/teacher-encourage.svg",
+      "character": "teacher",
+      "role": "teacher",
+      "emotion": "encouraging",
+      "emotionIntensity": 2,
+      "pose": "pointing",
+      "action": "pointing",
+      "gaze": "right",
+      "facing": "right",
+      "shot": "medium",
+      "cameraAngle": "eye-level",
+      "subjectTags": ["teaching"],
+      "storyBeatTags": ["guided-discovery", "explanation"],
+      "recommendedPositions": ["left"],
+      "speechBubbleSafeAreas": ["upper-right"],
+      "transparent": true,
+      "mirrorAllowed": true,
+      "width": 320,
+      "height": 420,
+      "license": "original-placeholder"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "homeworkJobs": {
+      "$jobId": {
+        ".read": "auth != null && data.child('ownerUid').val() === auth.uid",
+        ".write": "auth != null && data.exists() && data.child('ownerUid').val() === auth.uid && (!newData.exists() || newData.child('ownerUid').val() === auth.uid)",
+        "ownerUid": { ".validate": "newData.val() === data.val()" },
+        "sourceImage": { ".validate": "newData.val() === data.val()" },
+        "slack": { ".validate": "newData.val() === data.val()" },
+        "createdAt": { ".validate": "newData.val() === data.val()" }
+      }
+    }
+  }
+}

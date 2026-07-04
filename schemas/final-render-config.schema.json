@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.homework-manga/schemas/final-render-config.schema.json",
+  "title": "FinalRenderConfig",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "templateId", "page", "theme", "exports"],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "templateId": { "const": "six-panel-a4-v1" },
+    "page": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["size", "orientation", "width", "height"],
+      "properties": {
+        "size": { "const": "A4" },
+        "orientation": { "const": "portrait" },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "theme": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fontFamily", "primaryColor", "emphasisColor"],
+      "properties": {
+        "fontFamily": { "type": "string" },
+        "primaryColor": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "emphasisColor": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }
+      }
+    },
+    "exports": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "enum": ["html", "pdf", "png"] }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.homework-manga/schemas/homework-draft.schema.json",
+  "title": "HomeworkDraft",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["grade", "subject", "problemText", "studentAnswer", "correctAnswer", "mistakeCause"],
+  "properties": {
+    "grade": { "type": "integer", "minimum": 1, "maximum": 6 },
+    "subject": { "const": "math" },
+    "problemText": { "type": "string", "minLength": 1 },
+    "studentAnswer": { "type": "string", "minLength": 1 },
+    "correctAnswer": { "type": "string", "minLength": 1 },
+    "mistakeCause": { "type": "string", "minLength": 1 }
+  }
+}
