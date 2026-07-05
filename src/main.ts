@@ -7,7 +7,7 @@ import { createWorkspace, loadWorkspace, saveWorkspace, WORKSPACE_KEY } from "./
 import { renderSafeVisualAid } from "./svg/visualAid";
 import { emphasize, escapeHtml } from "./utils";
 import { approveHomeworkJob, firebaseConfigured, getFirebaseIdToken, loginWithGoogle, observeAuth, observeHomeworkJob, requestHomeworkDeletion, type RemoteHomeworkJob } from "./firebaseClient";
-import { homeworkGasConfigured, retryHomeworkViaGas, uploadHomeworkToGas } from "./homeworkGasClient";
+import { homeworkGasConfigured, uploadHomeworkToGas } from "./homeworkGasClient";
 import { blobToBase64, prepareHomeworkImage } from "./upload";
 import rawAssetCatalog from "../public/assets/metadata.json";
 import { assetCatalogSchema } from "./assets";
@@ -108,7 +108,7 @@ async function renderRemoteJob(jobId: string, uid: string, job: RemoteHomeworkJo
   if (job.status === "unsupported" || job.status === "needs_review") {
     app.innerHTML = `<section class="workflow-card"><h2>Automatic generation stopped</h2><p class="warning">${escapeHtml(job.error ?? "The problem could not be verified safely.")}</p></section>`; return;
   }
-  if (job.status === "failed") { app.innerHTML = `<section class="workflow-card"><h2>解析に失敗しました</h2><p class="warning">${escapeHtml(job.error ?? "原因不明")}</p>${job.trigger?.provider === "web" ? `<button id="retry-remote" class="primary">&#35299;&#26512;&#12434;&#20877;&#23455;&#34892;</button>` : ""}</section>`; document.querySelector("#retry-remote")?.addEventListener("click", async () => { await retryHomeworkViaGas(await getFirebaseIdToken(), jobId); }); return; }
+  if (job.status === "failed") { app.innerHTML = `<section class="workflow-card"><h2>Processing failed</h2><p class="warning">${escapeHtml(job.error ?? "Unknown error")}</p><p>Submit the homework again to create a new job.</p></section>`; return; }
   if (!job.analysis) { const progress = remoteJobProgress(job.status); app.innerHTML = `<section class="workflow-card progress-screen"><div class="spinner"></div><h2>${escapeHtml(progress.title)}</h2><p>${escapeHtml(progress.detail)}</p></section>`; return; }
   const analysis = normalizeRemoteAnalysis(job.analysis);
   if (activeRemoteJobId !== job.id) {

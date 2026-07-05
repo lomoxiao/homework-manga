@@ -19,7 +19,6 @@ function parseApiRequest_(e, method) {
 
 function dispatchApiAction_(request) {
   if (request.action === 'homeworkUpload') return createHomeworkUpload_(request.body);
-  if (request.action === 'homeworkRetry') return retryHomework_(request.body);
   throw new Error('Unsupported action.');
 }
 

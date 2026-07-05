@@ -17,6 +17,3 @@ export function uploadHomeworkToGas(input: { idToken: string; base64: string; fi
   return postGas<{ jobId: string }>({ action: "homeworkUpload", ...input });
 }
 
-export function retryHomeworkViaGas(idToken: string, jobId: string) {
-  return postGas<{ jobId: string }>({ action: "homeworkRetry", idToken, jobId });
-}
