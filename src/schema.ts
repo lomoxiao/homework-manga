@@ -5,9 +5,11 @@ export const problemTypeSchema = z.enum(["calculation", "word_problem", "constru
 export const verificationMethodSchema = z.enum(["rational_arithmetic", "ratio_percent", "unit_conversion", "geometry_formula", "statistics", "table_consistency", "substitution", "manual"]);
 const dialogueSchema = z.object({ speaker: z.string(), text: z.string(), tone: z.enum(["normal", "question", "encourage", "discovery"]) });
 const barModelSchema = z.object({ type: z.literal("bar_model"), total: z.number().positive(), groups: z.number().int().positive(), perGroup: z.number().positive(), label: z.string() });
+const aidPrimitive = z.union([z.number(), z.string(), z.boolean()]);
+const aidValue = z.union([aidPrimitive, z.array(aidPrimitive)]);
 const pluginAid = <T extends string>(type: T) => z.object({
   type: z.literal(type), position: z.enum(["left", "center", "right", "bottom"]).default("center"),
-  labels: z.record(z.string()).default({}), data: z.record(z.union([z.number(), z.string(), z.boolean()]))
+  labels: z.record(aidValue).default({}), data: z.record(aidValue)
 });
 export const visualAidSchema = z.union([
   barModelSchema, pluginAid("number_line"), pluginAid("place_value"), pluginAid("fraction_bar"), pluginAid("area_model"),

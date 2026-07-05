@@ -218,16 +218,48 @@
                   "labels": {
                     "type": "object",
                     "additionalProperties": {
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": [
+                            "number",
+                            "string",
+                            "boolean"
+                          ]
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": [
+                              "number",
+                              "string",
+                              "boolean"
+                            ]
+                          }
+                        }
+                      ]
                     }
                   },
                   "data": {
                     "type": "object",
                     "additionalProperties": {
-                      "type": [
-                        "number",
-                        "string",
-                        "boolean"
+                      "anyOf": [
+                        {
+                          "type": [
+                            "number",
+                            "string",
+                            "boolean"
+                          ]
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": [
+                              "number",
+                              "string",
+                              "boolean"
+                            ]
+                          }
+                        }
                       ]
                     }
                   }
