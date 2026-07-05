@@ -4,7 +4,8 @@ import rawRenderConfig from "../samples/final_render_config.json";
 import { homeworkDraftSchema, mangaPlanSchema, renderConfigSchema, type MangaPanel, type VisualAid, type WorkspaceState } from "./schema";
 import { generateScenario } from "./scenarioGenerator";
 import { createWorkspace, loadWorkspace, saveWorkspace, WORKSPACE_KEY } from "./workspace";
-import { renderSafeVisualAid } from "./svg/visualAid";
+import { renderSafeVisualAid, visualAidSpecSchema } from "./svg/visualAid";
+import { readMangaPlan } from "./mangaPlan21";
 import { emphasize, escapeHtml } from "./utils";
 import { approveHomeworkJob, firebaseConfigured, getFirebaseIdToken, loginWithGoogle, observeAuth, observeHomeworkJob, requestHomeworkDeletion, type RemoteHomeworkJob } from "./firebaseClient";
 import { homeworkGasConfigured, uploadHomeworkToGas } from "./homeworkGasClient";
@@ -95,10 +96,11 @@ async function renderRemoteJob(jobId: string, uid: string, job: RemoteHomeworkJo
   if (job.ownerUid !== uid) { app.innerHTML = `<section class="workflow-card"><h2>アクセスできません</h2><p>この宿題の所有者ではありません。</p></section>`; return; }
   if (job.status === "delete_requested" || job.status === "deleting") { app.innerHTML = `<section class="workflow-card progress-screen"><div class="spinner"></div><h2>削除を処理しています</h2><p>Botが起動すると、Google Drive画像とジョブを削除します。この画面は閉じて構いません。</p></section>`; return; }
   if (job.status === "scenario_review_required" && job.mangaPlan) {
-    const parsedPlan = mangaPlanSchema.safeParse(job.mangaPlan);
-    if (!parsedPlan.success) { app.innerHTML = `<section class="workflow-card"><h2>Invalid scenario format</h2><p class="warning">Regenerate this scenario.</p></section>`; return; }
+    const parsedPlan = readMangaPlan(job.mangaPlan);
+    if (parsedPlan.kind === "legacy_unreadable") { app.innerHTML = `<section class="workflow-card"><h2>旧形式・閲覧不可</h2></section>`; return; }
+    if (parsedPlan.kind !== "current") { app.innerHTML = `<section class="workflow-card"><h2>Invalid scenario format</h2><p class="warning">${escapeHtml(parsedPlan.reason)}</p></section>`; return; }
     const approved = homeworkDraftSchema.parse(job.approvedAnalysis);
-    state = saveWorkspace(localStorage, { ...createWorkspace(parsedPlan.data), step: "scenario", draft: approved, mangaPlan: parsedPlan.data });
+    state = saveWorkspace(localStorage, { ...createWorkspace(parsedPlan.plan), step: "scenario", draft: approved, mangaPlan: parsedPlan.plan });
     history.replaceState({}, "", location.pathname); render(); return;
   }
   if (["scenario_queued", "scenario_generating", "scenario_validating"].includes(job.status)) {
@@ -260,7 +262,7 @@ function renderScenario(): string {
 
 function renderVisualAidEditor(aid: VisualAid | null): string {
   if (!aid) return "";
-  if (aid.type !== "bar_model") return `<p class="manual-badge">Visual: ${escapeHtml(aid.type)} (generated from a verified specification)</p>`;
+  if (aid.type !== "bar_model" || !("groups" in aid)) return `<p class="manual-badge">Visual: ${escapeHtml(aid.type)} (generated from a verified specification)</p>`;
   const invalid = aid.total / aid.groups !== aid.perGroup;
   return `<fieldset><legend>Bar model</legend><div class="field-row">${numberField("total", "Total", aid.total)}${numberField("groups", "Groups", aid.groups)}${numberField("perGroup", "Each", aid.perGroup)}</div>${invalid ? '<p class="warning">Total / groups must equal each.</p>' : ""}</fieldset>`;
 }
@@ -285,7 +287,8 @@ function renderManga(plan: NonNullable<WorkspaceState["mangaPlan"]>): string {
 function renderMangaPanel(panel: MangaPanel): string {
   const character = panel.characters[0] ?? "hero";
   const expression = panel.characterExpression[character] ?? "calm";
-  const aid = panel.visualAid ? `<div class="visual-aid">${renderSafeVisualAid(panel.visualAid)}</div>` : "";
+  const checkedAid = panel.visualAid ? visualAidSpecSchema.safeParse(panel.visualAid) : null;
+  const aid = checkedAid?.success ? `<div class="visual-aid">${renderSafeVisualAid(checkedAid.data)}</div>` : panel.visualAid ? `<div class="unsupported-visual" role="note">旧形式・閲覧不可</div>` : "";
   const formula = panel.formula.length ? `<div class="formula-block">${panel.formula.map((f) => `<span>${escapeHtml(f)}</span>`).join("")}</div>` : "";
   const selectedAsset = assetCatalog.find((asset) => panel.assetIds.includes(asset.assetId));
   const characterHtml = selectedAsset
@@ -343,10 +346,11 @@ function submitPanel(event: SubmitEvent): void {
   const panels = [...state.mangaPlan.panels];
   const current = panels[selectedPanel - 1];
   const character = String(data.get("character"));
-  const visualAid = current.visualAid?.type === "bar_model" ? { ...current.visualAid, total: Number(data.get("total")), groups: Number(data.get("groups")), perGroup: Number(data.get("perGroup")) } : current.visualAid;
+  const visualAid = updateLegacyBar(current.visualAid, data);
   panels[selectedPanel - 1] = { ...current, learningPurpose: String(data.get("learningPurpose")), scene: String(data.get("scene")), dialogue: [{ ...current.dialogue[0], text: String(data.get("dialogue")) }], narration: String(data.get("narration")) || null, formula: String(data.get("formula")).split("\n").map((v) => v.trim()).filter(Boolean), characters: [character], characterPose: { [character]: character === "teacher" ? "pointing" : "thinking" }, characterExpression: { [character]: String(data.get("expression")) }, visualAid };
   setState({ ...state, mangaPlan: { ...state.mangaPlan, panels }, scenarioEdited: true });
 }
+function updateLegacyBar(aid: VisualAid | null, data: FormData): VisualAid | null { return aid?.type === "bar_model" && "groups" in aid ? { ...aid, total: Number(data.get("total")), groups: Number(data.get("groups")), perGroup: Number(data.get("perGroup")) } : aid; }
 
 function handleAction(event: Event): void {
   const action = (event.currentTarget as HTMLElement).dataset.action;

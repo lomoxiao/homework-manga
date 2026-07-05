@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { rendererSpecSchema } from "./mangaPlan21";
 
 export const curriculumDomainSchema = z.enum(["number_calculation", "geometry", "measurement", "change_relationships", "data"]);
 export const problemTypeSchema = z.enum(["calculation", "word_problem", "construction", "multiple_choice", "table_graph", "explanation"]);
@@ -22,15 +23,15 @@ export const verificationSchema = z.object({
 });
 
 export const mangaPlanSchema = z.object({
-  schemaVersion: z.enum(["1.0", "2.0"]), jobId: z.string().min(1), title: z.string().min(1),
+  schemaVersion: z.enum(["1.0", "2.0", "2.1"]), contractVersion: z.literal("2.1").optional(), schemaHash: z.string().optional(), jobId: z.string().min(1), title: z.string().min(1),
   problem: z.object({ text: z.string().min(1), studentAnswer: z.string().min(1), correctAnswer: z.string().min(1) }),
   panels: z.array(z.object({
     panelNumber: z.number().int().min(1).max(6), learningPurpose: z.string().min(1), scene: z.string().min(1), solutionStepId: z.string().nullable().default(null),
     characters: z.array(z.string()), characterPose: z.record(z.string()).default({}), characterExpression: z.record(z.string()).default({}),
     background: z.string(), props: z.array(z.string()).default([]), dialogue: z.array(dialogueSchema), narration: z.string().nullable().default(null),
-    visualAid: visualAidSchema.nullable().default(null), formula: z.array(z.string()), emphasisWords: z.array(z.string()),
+    visualAid: z.union([rendererSpecSchema, visualAidSchema]).nullable().default(null), formula: z.array(z.string()), emphasisWords: z.array(z.string()),
     layout: z.object({ size: z.enum(["small", "medium", "large"]), characterSide: z.enum(["left", "right"]), visualAidPosition: z.enum(["center", "bottom", "right"]) }), assetIds: z.array(z.string())
-  })).length(6)
+  })).length(6), warnings: z.array(z.string()).optional()
 });
 
 export const renderConfigSchema = z.object({
@@ -57,7 +58,7 @@ export const workspaceStateSchema = z.preprocess((value) => {
 export type MangaPlan = z.infer<typeof mangaPlanSchema>;
 export type MangaPanel = MangaPlan["panels"][number];
 export type VisualAid = NonNullable<MangaPanel["visualAid"]>;
-export type BarModelData = Extract<VisualAid, { type: "bar_model" }>;
+export type BarModelData = z.infer<typeof barModelSchema>;
 export type RenderConfig = z.infer<typeof renderConfigSchema>;
 export type HomeworkDraft = z.infer<typeof homeworkDraftSchema>;
 export type WorkspaceState = z.infer<typeof workspaceV2Schema>;
