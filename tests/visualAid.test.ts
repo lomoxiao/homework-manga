@@ -8,8 +8,8 @@ describe("safe visual aid renderer", () => {
     expect(svg.match(/<text/g)).toHaveLength(6);
   });
 
-  it("does not execute unsupported raw SVG", () => {
+  it("renders a deterministic clock without raw SVG input", () => {
     const spec = visualAidSpecSchema.parse({ type: "clock", position: "center", labels: {}, data: { hour: 3 } });
-    expect(renderSafeVisualAid(spec)).toContain("プレビュー非対応");
+    expect(renderSafeVisualAid(spec)).toContain("<circle");
   });
 });

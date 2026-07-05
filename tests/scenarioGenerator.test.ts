@@ -21,10 +21,10 @@ describe("division scenario generator", () => {
     expect(result.plan.panels[5].formula).toContain("24 ÷ 3 = 8");
   });
 
-  it("uses the generic fallback for unsupported problems", () => {
+  it("supports verified subtraction problems", () => {
     const result = generateScenario({ ...defaultDraft, problemText: "りんごを3個食べました。", correctAnswer: "24 - 3 = 21" });
-    expect(result.supported).toBe(false);
-    expect(result.warning).toContain("汎用シナリオ");
+    expect(result.supported).toBe(true);
+    expect(result.warning).toBeUndefined();
     expect(result.plan.panels).toHaveLength(6);
   });
 });

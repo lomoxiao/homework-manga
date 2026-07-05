@@ -1,22 +1,52 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://local.homework-manga/schemas/manga-plan.schema.json",
-  "title": "MangaPlan",
+  "title": "MangaPlanV2",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "jobId", "title", "problem", "panels"],
+  "required": [
+    "schemaVersion",
+    "jobId",
+    "title",
+    "problem",
+    "panels"
+  ],
   "properties": {
-    "schemaVersion": { "const": "1.0" },
-    "jobId": { "type": "string", "minLength": 1 },
-    "title": { "type": "string", "minLength": 1 },
+    "schemaVersion": {
+      "enum": [
+        "1.0",
+        "2.0"
+      ]
+    },
+    "jobId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
     "problem": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["text", "studentAnswer", "correctAnswer"],
+      "required": [
+        "text",
+        "studentAnswer",
+        "correctAnswer"
+      ],
       "properties": {
-        "text": { "type": "string", "minLength": 1 },
-        "studentAnswer": { "type": "string", "minLength": 1 },
-        "correctAnswer": { "type": "string", "minLength": 1 }
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "studentAnswer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "correctAnswer": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "panels": {
@@ -26,60 +56,240 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["panelNumber", "learningPurpose", "scene", "characters", "background", "dialogue", "narration", "visualAid", "formula", "emphasisWords", "layout", "assetIds"],
+        "required": [
+          "panelNumber",
+          "learningPurpose",
+          "scene",
+          "characters",
+          "background",
+          "dialogue",
+          "narration",
+          "visualAid",
+          "formula",
+          "emphasisWords",
+          "layout",
+          "assetIds"
+        ],
         "properties": {
-          "panelNumber": { "type": "integer", "minimum": 1, "maximum": 6 },
-          "learningPurpose": { "type": "string", "minLength": 1 },
-          "scene": { "type": "string", "minLength": 1 },
-          "characters": { "type": "array", "items": { "type": "string" } },
-          "characterPose": { "type": "object", "additionalProperties": { "type": "string" } },
-          "characterExpression": { "type": "object", "additionalProperties": { "type": "string" } },
-          "background": { "type": "string" },
-          "props": { "type": "array", "items": { "type": "string" } },
+          "panelNumber": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 6
+          },
+          "learningPurpose": {
+            "type": "string",
+            "minLength": 1
+          },
+          "scene": {
+            "type": "string",
+            "minLength": 1
+          },
+          "characters": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "characterPose": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "characterExpression": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "background": {
+            "type": "string"
+          },
+          "props": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "dialogue": {
             "type": "array",
             "items": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["speaker", "text", "tone"],
+              "required": [
+                "speaker",
+                "text",
+                "tone"
+              ],
               "properties": {
-                "speaker": { "type": "string" },
-                "text": { "type": "string" },
-                "tone": { "enum": ["normal", "question", "encourage", "discovery"] }
+                "speaker": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "tone": {
+                  "enum": [
+                    "normal",
+                    "question",
+                    "encourage",
+                    "discovery"
+                  ]
+                }
               }
             }
           },
-          "narration": { "type": ["string", "null"] },
+          "narration": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "visualAid": {
             "anyOf": [
-              { "type": "null" },
+              {
+                "type": "null"
+              },
               {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["type", "total", "groups", "perGroup", "label"],
+                "required": [
+                  "type",
+                  "total",
+                  "groups",
+                  "perGroup",
+                  "label"
+                ],
                 "properties": {
-                  "type": { "const": "bar_model" },
-                  "total": { "type": "number", "exclusiveMinimum": 0 },
-                  "groups": { "type": "integer", "minimum": 1 },
-                  "perGroup": { "type": "number", "exclusiveMinimum": 0 },
-                  "label": { "type": "string" }
+                  "type": {
+                    "const": "bar_model"
+                  },
+                  "total": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "groups": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "perGroup": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "label": {
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "type",
+                  "position",
+                  "labels",
+                  "data"
+                ],
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "number_line",
+                      "place_value",
+                      "fraction_bar",
+                      "area_model",
+                      "ratio_diagram",
+                      "geometry",
+                      "clock",
+                      "unit_conversion",
+                      "table",
+                      "bar_chart",
+                      "line_chart",
+                      "comparison"
+                    ]
+                  },
+                  "position": {
+                    "enum": [
+                      "left",
+                      "center",
+                      "right",
+                      "bottom"
+                    ]
+                  },
+                  "labels": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  },
+                  "data": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": [
+                        "number",
+                        "string",
+                        "boolean"
+                      ]
+                    }
+                  }
                 }
               }
             ]
           },
-          "formula": { "type": "array", "items": { "type": "string" } },
-          "emphasisWords": { "type": "array", "items": { "type": "string" } },
+          "formula": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "emphasisWords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "layout": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["size", "characterSide", "visualAidPosition"],
+            "required": [
+              "size",
+              "characterSide",
+              "visualAidPosition"
+            ],
             "properties": {
-              "size": { "enum": ["small", "medium", "large"] },
-              "characterSide": { "enum": ["left", "right"] },
-              "visualAidPosition": { "enum": ["center", "bottom", "right"] }
+              "size": {
+                "enum": [
+                  "small",
+                  "medium",
+                  "large"
+                ]
+              },
+              "characterSide": {
+                "enum": [
+                  "left",
+                  "right"
+                ]
+              },
+              "visualAidPosition": {
+                "enum": [
+                  "center",
+                  "bottom",
+                  "right"
+                ]
+              }
             }
           },
-          "assetIds": { "type": "array", "items": { "type": "string" } }
+          "assetIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "solutionStepId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
         }
       }
     }

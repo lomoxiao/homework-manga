@@ -27,6 +27,9 @@ export type RemoteHomeworkJob = {
     displayUrl?: string;
   };
   analysis?: RemoteHomeworkAnalysis;
+  approvedAnalysis?: Record<string, unknown>;
+  mangaPlan?: Record<string, unknown>;
+  verification?: { status: string; confidence: number; warnings: string[] };
   error?: string;
 };
 
@@ -58,9 +61,9 @@ export function observeHomeworkJob(jobId: string, callback: (job: RemoteHomework
   return onValue(ref(db, `/homeworkJobs/${jobId}`), (snapshot) => callback(snapshot.exists() ? snapshot.val() as RemoteHomeworkJob : null));
 }
 
-export async function approveHomeworkJob(jobId: string, selectedProblemId: string, approvedAnalysis: Record<string, unknown>, mangaPlan: Record<string, unknown>) {
+export async function approveHomeworkJob(jobId: string, selectedProblemId: string, approvedAnalysis: Record<string, unknown>) {
   if (!db) throw new Error("Firebase is not configured");
-  await update(ref(db, `/homeworkJobs/${jobId}`), { selectedProblemId, approvedAnalysis, mangaPlan, status: "completed", stage: "completed", updatedAt: new Date().toISOString() });
+  await update(ref(db, `/homeworkJobs/${jobId}`), { selectedProblemId, approvedAnalysis, mangaPlan: null, error: null, status: "scenario_queued", stage: "scenario_queued", updatedAt: new Date().toISOString() });
 }
 
 export async function requestHomeworkDeletion(jobId: string) {
