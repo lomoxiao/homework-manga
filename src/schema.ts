@@ -27,8 +27,8 @@ export const mangaPlanSchema = z.object({
   panels: z.array(z.object({
     panelNumber: z.number().int().min(1).max(6), learningPurpose: z.string().min(1), scene: z.string().min(1), solutionStepId: z.string().nullable().default(null),
     characters: z.array(z.string()), characterPose: z.record(z.string()).default({}), characterExpression: z.record(z.string()).default({}),
-    background: z.string(), props: z.array(z.string()).default([]), dialogue: z.array(dialogueSchema), narration: z.string().nullable(),
-    visualAid: visualAidSchema.nullable(), formula: z.array(z.string()), emphasisWords: z.array(z.string()),
+    background: z.string(), props: z.array(z.string()).default([]), dialogue: z.array(dialogueSchema), narration: z.string().nullable().default(null),
+    visualAid: visualAidSchema.nullable().default(null), formula: z.array(z.string()), emphasisWords: z.array(z.string()),
     layout: z.object({ size: z.enum(["small", "medium", "large"]), characterSide: z.enum(["left", "right"]), visualAidPosition: z.enum(["center", "bottom", "right"]) }), assetIds: z.array(z.string())
   })).length(6)
 });
