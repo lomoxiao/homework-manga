@@ -2,6 +2,17 @@
   "rules": {
     ".read": false,
     ".write": false,
+    "homeworkJobsV3": {
+      ".indexOn": ["queueKey", "ownerUid"],
+      ".read": "auth != null && query.orderByChild == 'ownerUid' && query.equalTo == auth.uid",
+      "$jobId": {
+        ".read": "auth != null && data.child('ownerUid').val() === auth.uid",
+        ".write": "auth != null && ((!data.exists() && newData.child('ownerUid').val() === auth.uid) || (data.exists() && data.child('ownerUid').val() === auth.uid && (!newData.exists() || newData.child('ownerUid').val() === auth.uid)))",
+        "ownerUid": { ".validate": "!data.exists() || newData.val() === data.val()" },
+        "sourceImage": { ".validate": "!data.exists() || newData.val() === data.val()" },
+        "createdAt": { ".validate": "!data.exists() || newData.val() === data.val()" }
+      }
+    },
     "homeworkJobs": {
       ".indexOn": "status",
       "$jobId": {

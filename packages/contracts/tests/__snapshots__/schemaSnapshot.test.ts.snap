@@ -1,0 +1,958 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`contract snapshots > ApprovedProblem v3 1`] = `
+{
+  "$ref": "#/definitions/ApprovedProblemV3",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "ApprovedProblemV3": {
+      "additionalProperties": false,
+      "properties": {
+        "canonicalAnswer": {
+          "default": "",
+          "maxLength": 500,
+          "type": "string",
+        },
+        "correctAnswer": {
+          "maxLength": 500,
+          "minLength": 1,
+          "type": "string",
+        },
+        "grade": {
+          "anyOf": [
+            {
+              "maximum": 6,
+              "minimum": 1,
+              "type": "integer",
+            },
+            {
+              "type": "null",
+            },
+          ],
+          "default": null,
+        },
+        "mistakeCause": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "type": "string",
+        },
+        "problemText": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "type": "string",
+        },
+        "schemaVersion": {
+          "const": "3.0",
+          "default": "3.0",
+          "type": "string",
+        },
+        "selectedProblemId": {
+          "default": "",
+          "maxLength": 100,
+          "type": "string",
+        },
+        "studentAnswer": {
+          "maxLength": 500,
+          "minLength": 1,
+          "type": "string",
+        },
+        "subject": {
+          "const": "math",
+          "default": "math",
+          "type": "string",
+        },
+      },
+      "required": [
+        "problemText",
+        "studentAnswer",
+        "correctAnswer",
+        "mistakeCause",
+      ],
+      "type": "object",
+    },
+  },
+}
+`;
+
+exports[`contract snapshots > HomeworkAnalysis v3 1`] = `
+{
+  "$ref": "#/definitions/HomeworkAnalysisV3",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "HomeworkAnalysisV3": {
+      "additionalProperties": false,
+      "properties": {
+        "problems": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "confidence": {
+                "additionalProperties": false,
+                "properties": {
+                  "correctAnswerCandidate": {
+                    "maximum": 1,
+                    "minimum": 0,
+                    "type": "number",
+                  },
+                  "mistakeCause": {
+                    "maximum": 1,
+                    "minimum": 0,
+                    "type": "number",
+                  },
+                  "problemText": {
+                    "maximum": 1,
+                    "minimum": 0,
+                    "type": "number",
+                  },
+                  "studentAnswer": {
+                    "maximum": 1,
+                    "minimum": 0,
+                    "type": "number",
+                  },
+                },
+                "required": [
+                  "problemText",
+                  "studentAnswer",
+                  "correctAnswerCandidate",
+                  "mistakeCause",
+                ],
+                "type": "object",
+              },
+              "correctAnswerCandidate": {
+                "maxLength": 500,
+                "type": "string",
+              },
+              "evidence": {
+                "items": {
+                  "maxLength": 500,
+                  "type": "string",
+                },
+                "maxItems": 20,
+                "type": "array",
+              },
+              "id": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string",
+              },
+              "mistakeCause": {
+                "maxLength": 1000,
+                "type": "string",
+              },
+              "problemText": {
+                "maxLength": 2000,
+                "minLength": 1,
+                "type": "string",
+              },
+              "studentAnswer": {
+                "maxLength": 500,
+                "type": "string",
+              },
+              "warnings": {
+                "items": {
+                  "maxLength": 500,
+                  "type": "string",
+                },
+                "maxItems": 20,
+                "type": "array",
+              },
+            },
+            "required": [
+              "id",
+              "problemText",
+              "studentAnswer",
+              "correctAnswerCandidate",
+              "mistakeCause",
+              "confidence",
+              "evidence",
+              "warnings",
+            ],
+            "type": "object",
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "type": "array",
+        },
+        "schemaVersion": {
+          "const": "3.0",
+          "type": "string",
+        },
+        "warnings": {
+          "items": {
+            "maxLength": 500,
+            "type": "string",
+          },
+          "maxItems": 20,
+          "type": "array",
+        },
+      },
+      "required": [
+        "schemaVersion",
+        "problems",
+        "warnings",
+      ],
+      "type": "object",
+    },
+  },
+}
+`;
+
+exports[`contract snapshots > HomeworkJob v3 node 1`] = `
+{
+  "$ref": "#/definitions/HomeworkJobV3",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "HomeworkJobV3": {
+      "additionalProperties": false,
+      "properties": {
+        "artifacts": {
+          "additionalProperties": false,
+          "properties": {
+            "analysis": {
+              "additionalProperties": false,
+              "properties": {
+                "json": {
+                  "minLength": 1,
+                  "type": "string",
+                },
+                "savedAt": {
+                  "minLength": 1,
+                  "type": "string",
+                },
+                "v": {
+                  "minLength": 1,
+                  "type": "string",
+                },
+              },
+              "required": [
+                "v",
+                "json",
+                "savedAt",
+              ],
+              "type": "object",
+            },
+            "approved": {
+              "$ref": "#/definitions/HomeworkJobV3/properties/artifacts/properties/analysis",
+            },
+            "mangaPlan": {
+              "$ref": "#/definitions/HomeworkJobV3/properties/artifacts/properties/analysis",
+            },
+          },
+          "type": "object",
+        },
+        "attempt": {
+          "additionalProperties": {
+            "minimum": 0,
+            "type": "integer",
+          },
+          "type": "object",
+        },
+        "child": {
+          "additionalProperties": false,
+          "properties": {
+            "lastReadAt": {
+              "type": "string",
+            },
+            "readCount": {
+              "minimum": 0,
+              "type": "integer",
+            },
+            "stamps": {
+              "minimum": 0,
+              "type": "integer",
+            },
+          },
+          "type": "object",
+        },
+        "createdAt": {
+          "minLength": 1,
+          "type": "string",
+        },
+        "failure": {
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "enum": [
+                "IMAGE_UNREADABLE",
+                "AI_OUTPUT_UNUSABLE",
+                "MATH_UNVERIFIED",
+                "ATTEMPTS_EXHAUSTED",
+                "INTERNAL_ERROR",
+              ],
+              "type": "string",
+            },
+            "detailJson": {
+              "maxLength": 20000,
+              "type": "string",
+            },
+            "messageForParent": {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string",
+            },
+          },
+          "required": [
+            "code",
+            "messageForParent",
+          ],
+          "type": "object",
+        },
+        "id": {
+          "minLength": 1,
+          "type": "string",
+        },
+        "ownerUid": {
+          "minLength": 1,
+          "type": "string",
+        },
+        "phase": {
+          "enum": [
+            "captured",
+            "analyzing",
+            "awaiting_approval",
+            "scripting",
+            "ready",
+            "failed",
+            "deleting",
+          ],
+          "type": "string",
+        },
+        "queueKey": {
+          "minLength": 1,
+          "type": "string",
+        },
+        "runState": {
+          "enum": [
+            "queued",
+            "running",
+            "done",
+            "error",
+          ],
+          "type": "string",
+        },
+        "sourceImage": {
+          "additionalProperties": false,
+          "properties": {
+            "contentType": {
+              "minLength": 1,
+              "type": "string",
+            },
+            "displayUrl": {
+              "type": "string",
+            },
+            "downloadUrl": {
+              "minLength": 1,
+              "type": "string",
+            },
+            "fileId": {
+              "minLength": 1,
+              "type": "string",
+            },
+            "provider": {
+              "const": "google_drive",
+              "type": "string",
+            },
+            "size": {
+              "minimum": 0,
+              "type": "integer",
+            },
+            "viewUrl": {
+              "minLength": 1,
+              "type": "string",
+            },
+          },
+          "required": [
+            "provider",
+            "fileId",
+            "contentType",
+            "size",
+            "viewUrl",
+            "downloadUrl",
+          ],
+          "type": "object",
+        },
+        "updatedAt": {
+          "minLength": 1,
+          "type": "string",
+        },
+      },
+      "required": [
+        "id",
+        "ownerUid",
+        "createdAt",
+        "updatedAt",
+        "phase",
+        "runState",
+        "queueKey",
+      ],
+      "type": "object",
+    },
+  },
+}
+`;
+
+exports[`contract snapshots > MangaPlan v3 1`] = `
+{
+  "$ref": "#/definitions/MangaPlanV3",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "MangaPlanV3": {
+      "additionalProperties": false,
+      "properties": {
+        "jobId": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string",
+        },
+        "layoutTemplate": {
+          "enum": [
+            "six-panel-a4-v1",
+          ],
+          "type": "string",
+        },
+        "panels": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "dialogue": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "speaker": {
+                      "enum": [
+                        "hero",
+                        "teacher",
+                      ],
+                      "type": "string",
+                    },
+                    "text": {
+                      "maxLength": 500,
+                      "minLength": 1,
+                      "type": "string",
+                    },
+                    "tone": {
+                      "enum": [
+                        "normal",
+                        "question",
+                        "encourage",
+                        "discovery",
+                      ],
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "speaker",
+                    "text",
+                    "tone",
+                  ],
+                  "type": "object",
+                },
+                "maxItems": 6,
+                "minItems": 1,
+                "type": "array",
+              },
+              "emphasisWords": {
+                "items": {
+                  "maxLength": 50,
+                  "minLength": 1,
+                  "type": "string",
+                },
+                "maxItems": 20,
+                "type": "array",
+              },
+              "formula": {
+                "items": {
+                  "maxLength": 100,
+                  "minLength": 1,
+                  "type": "string",
+                },
+                "maxItems": 10,
+                "type": "array",
+              },
+              "learningPurpose": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string",
+              },
+              "narration": {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string",
+              },
+              "presentation": {
+                "additionalProperties": false,
+                "properties": {
+                  "background": {
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string",
+                  },
+                  "casts": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "character": {
+                          "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/dialogue/items/properties/speaker",
+                        },
+                        "expression": {
+                          "maxLength": 50,
+                          "minLength": 1,
+                          "type": "string",
+                        },
+                        "pose": {
+                          "maxLength": 50,
+                          "minLength": 1,
+                          "type": "string",
+                        },
+                        "side": {
+                          "enum": [
+                            "left",
+                            "right",
+                          ],
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "character",
+                        "expression",
+                        "pose",
+                        "side",
+                      ],
+                      "type": "object",
+                    },
+                    "maxItems": 4,
+                    "minItems": 1,
+                    "type": "array",
+                  },
+                  "size": {
+                    "enum": [
+                      "small",
+                      "medium",
+                      "large",
+                    ],
+                    "type": "string",
+                  },
+                  "visualAidPosition": {
+                    "enum": [
+                      "center",
+                      "bottom",
+                      "right",
+                    ],
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "casts",
+                  "background",
+                  "size",
+                  "visualAidPosition",
+                ],
+                "type": "object",
+              },
+              "role": {
+                "enum": [
+                  "problem",
+                  "error_location",
+                  "visualization",
+                  "solution",
+                  "check",
+                  "transfer",
+                ],
+                "type": "string",
+              },
+              "scene": {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string",
+              },
+              "solutionStepId": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string",
+              },
+              "visualAid": {
+                "anyOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "headers": {
+                        "items": {
+                          "maxLength": 200,
+                          "minLength": 1,
+                          "type": "string",
+                        },
+                        "maxItems": 10,
+                        "minItems": 1,
+                        "type": "array",
+                      },
+                      "position": {
+                        "enum": [
+                          "left",
+                          "center",
+                          "right",
+                          "bottom",
+                        ],
+                        "type": "string",
+                      },
+                      "rows": {
+                        "items": {
+                          "items": {
+                            "maxLength": 200,
+                            "type": "string",
+                          },
+                          "maxItems": 10,
+                          "minItems": 1,
+                          "type": "array",
+                        },
+                        "maxItems": 20,
+                        "minItems": 1,
+                        "type": "array",
+                      },
+                      "type": {
+                        "const": "table",
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "type",
+                      "position",
+                      "headers",
+                      "rows",
+                    ],
+                    "type": "object",
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "groupCount": {
+                        "exclusiveMinimum": 0,
+                        "maximum": 100,
+                        "type": "integer",
+                      },
+                      "perGroup": {
+                        "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/visualAid/anyOf/1/properties/total",
+                      },
+                      "position": {
+                        "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/visualAid/anyOf/0/properties/position",
+                      },
+                      "total": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "denominator": {
+                            "type": "integer",
+                          },
+                          "numerator": {
+                            "type": "integer",
+                          },
+                        },
+                        "required": [
+                          "numerator",
+                          "denominator",
+                        ],
+                        "type": "object",
+                      },
+                      "type": {
+                        "const": "bar_model",
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "type",
+                      "position",
+                      "total",
+                      "groupCount",
+                      "perGroup",
+                    ],
+                    "type": "object",
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "denominator": {
+                        "exclusiveMinimum": 0,
+                        "maximum": 100,
+                        "type": "integer",
+                      },
+                      "numerator": {
+                        "minimum": 0,
+                        "type": "integer",
+                      },
+                      "position": {
+                        "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/visualAid/anyOf/0/properties/position",
+                      },
+                      "type": {
+                        "const": "fraction_bar",
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "type",
+                      "position",
+                      "numerator",
+                      "denominator",
+                    ],
+                    "type": "object",
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "marks": {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "label": {
+                              "maxLength": 50,
+                              "type": "string",
+                            },
+                            "value": {
+                              "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/visualAid/anyOf/1/properties/total",
+                            },
+                          },
+                          "required": [
+                            "value",
+                          ],
+                          "type": "object",
+                        },
+                        "maxItems": 20,
+                        "type": "array",
+                      },
+                      "max": {
+                        "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/visualAid/anyOf/1/properties/total",
+                      },
+                      "min": {
+                        "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/visualAid/anyOf/1/properties/total",
+                      },
+                      "position": {
+                        "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/visualAid/anyOf/0/properties/position",
+                      },
+                      "tickCount": {
+                        "maximum": 20,
+                        "minimum": 1,
+                        "type": "integer",
+                      },
+                      "type": {
+                        "const": "number_line",
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "type",
+                      "position",
+                      "min",
+                      "max",
+                      "tickCount",
+                      "marks",
+                    ],
+                    "type": "object",
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "left": {
+                        "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/visualAid/anyOf/1/properties/total",
+                      },
+                      "leftLabel": {
+                        "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/visualAid/anyOf/0/properties/headers/items",
+                      },
+                      "operator": {
+                        "enum": [
+                          "<",
+                          "=",
+                          ">",
+                        ],
+                        "type": "string",
+                      },
+                      "position": {
+                        "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/visualAid/anyOf/0/properties/position",
+                      },
+                      "ratio": {
+                        "anyOf": [
+                          {
+                            "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/visualAid/anyOf/1/properties/total",
+                          },
+                          {
+                            "type": "null",
+                          },
+                        ],
+                      },
+                      "right": {
+                        "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/visualAid/anyOf/1/properties/total",
+                      },
+                      "rightLabel": {
+                        "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/visualAid/anyOf/0/properties/headers/items",
+                      },
+                      "type": {
+                        "const": "comparison",
+                        "type": "string",
+                      },
+                      "unit": {
+                        "maxLength": 30,
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "type",
+                      "position",
+                      "left",
+                      "right",
+                      "leftLabel",
+                      "rightLabel",
+                      "unit",
+                      "operator",
+                      "ratio",
+                    ],
+                    "type": "object",
+                  },
+                ],
+              },
+            },
+            "required": [
+              "role",
+              "learningPurpose",
+              "scene",
+              "solutionStepId",
+              "dialogue",
+              "formula",
+              "emphasisWords",
+              "presentation",
+            ],
+            "type": "object",
+          },
+          "maxItems": 8,
+          "minItems": 4,
+          "type": "array",
+        },
+        "planSource": {
+          "enum": [
+            "ai",
+            "ai_repaired",
+            "fallback",
+          ],
+          "type": "string",
+        },
+        "problem": {
+          "additionalProperties": false,
+          "properties": {
+            "correctAnswer": {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string",
+            },
+            "studentAnswer": {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string",
+            },
+            "text": {
+              "maxLength": 2000,
+              "minLength": 1,
+              "type": "string",
+            },
+          },
+          "required": [
+            "text",
+            "studentAnswer",
+            "correctAnswer",
+          ],
+          "type": "object",
+        },
+        "repairNotes": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "enum": [
+                  "RATIONAL_NORMALIZED",
+                  "PANEL_PADDED",
+                  "PANEL_TRUNCATED",
+                  "ROLE_REORDERED",
+                  "STEP_REF_FIXED",
+                  "VISUAL_DROPPED",
+                  "DIALOGUE_SYNTHESIZED",
+                  "FORMULA_MOVED",
+                  "FIELD_DEFAULTED",
+                  "FIELD_TRUNCATED",
+                  "STEP_SYNTHESIZED",
+                  "TITLE_DEFAULTED",
+                ],
+                "type": "string",
+              },
+              "detail": {
+                "maxLength": 500,
+                "type": "string",
+              },
+              "panelIndex": {
+                "minimum": 0,
+                "type": "integer",
+              },
+            },
+            "required": [
+              "code",
+              "detail",
+            ],
+            "type": "object",
+          },
+          "maxItems": 50,
+          "type": "array",
+        },
+        "schemaVersion": {
+          "const": "3.0",
+          "type": "string",
+        },
+        "solutionSteps": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "explanation": {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string",
+              },
+              "expression": {
+                "default": "",
+                "maxLength": 100,
+                "type": "string",
+              },
+              "id": {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string",
+              },
+              "result": {
+                "default": "",
+                "maxLength": 200,
+                "type": "string",
+              },
+            },
+            "required": [
+              "id",
+              "explanation",
+            ],
+            "type": "object",
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "type": "array",
+        },
+        "title": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string",
+        },
+      },
+      "required": [
+        "schemaVersion",
+        "jobId",
+        "planSource",
+        "title",
+        "problem",
+        "solutionSteps",
+        "layoutTemplate",
+        "panels",
+        "repairNotes",
+      ],
+      "type": "object",
+    },
+  },
+}
+`;

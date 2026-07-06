@@ -4,12 +4,14 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./schema": "./src/schema.ts",
-    "./mangaPlan21": "./src/mangaPlan21.ts",
-    "./defaultDraft": "./src/defaultDraft.ts",
+    "./*": "./src/*.ts",
     "./fixtures/*": "./fixtures/*"
   },
   "dependencies": {
-    "zod": "^3.25.67"
+    "zod": "^3.25.67",
+    "zod-to-json-schema": "^3.24.5"
+  },
+  "devDependencies": {
+    "fast-check": "^4.1.1"
   }
 }

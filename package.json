@@ -3,7 +3,10 @@
   "version": "0.2.0",
   "private": true,
   "type": "module",
-  "workspaces": ["packages/*", "apps/*"],
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
     "dev": "npm run dev --workspace @homework-manga/web",
     "build": "tsc --noEmit --pretty false && npm run build --workspace @homework-manga/web",
@@ -12,6 +15,7 @@
     "contract:check": "node ../scripts/sync-manga-plan-contract.mjs --check"
   },
   "devDependencies": {
+    "@types/babel__core": "^7.20.5",
     "@types/node": "^22.15.32",
     "typescript": "^5.8.3",
     "vite": "^6.3.5",

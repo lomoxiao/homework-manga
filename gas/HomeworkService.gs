@@ -51,18 +51,16 @@ function createHomeworkUpload_(input) {
     file.setDescription(JSON.stringify({ workflow: 'homework-manga', jobId: jobId, ownerUid: ownerUid }));
     const sourceImage = driveSource_(file, mime, bytes.length);
     const now = new Date().toISOString();
+    // v3: worker は /homeworkJobsV3 の queueKey を直接購読するため Slack トリガー投稿は不要。
+    // phase×runState の直交2軸 + 導出 queueKey(homework-manga packages/contracts/src/homeworkJob.ts と同一契約)。
     const job = {
-      id: jobId, ownerUid: ownerUid, status: 'queued', stage: 'queued',
-      trigger: { provider: 'web', requestedBy: ownerUid }, sourceImage: sourceImage,
+      id: jobId, ownerUid: ownerUid,
+      phase: 'analyzing', runState: 'queued', queueKey: 'analyzing:queued',
+      sourceImage: sourceImage,
       createdAt: now, updatedAt: now
     };
-    firebaseRequest_('/homeworkJobs/' + encodeURIComponent(jobId), 'put', job, input.idToken);
-    const slackTs = postHomeworkTrigger_(jobId);
-    firebaseRequest_('/homeworkJobs/' + encodeURIComponent(jobId), 'patch', {
-      trigger: { provider: 'web', requestedBy: ownerUid, slackTriggerSentAt: new Date().toISOString() },
-      updatedAt: new Date().toISOString()
-    }, input.idToken);
-    return { jobId: jobId, slackTs: slackTs };
+    firebaseRequest_('/homeworkJobsV3/' + encodeURIComponent(jobId), 'put', job, input.idToken);
+    return { jobId: jobId };
   } catch (error) {
     try { file.setTrashed(true); } catch (_) {}
     throw error;

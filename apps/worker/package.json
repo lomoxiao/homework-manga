@@ -1,0 +1,23 @@
+{
+  "name": "@homework-manga/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "start": "tsx src/index.ts",
+    "job:create": "tsx src/scripts/createJob.ts",
+    "job:approve": "tsx src/scripts/approve.ts"
+  },
+  "dependencies": {
+    "@homework-manga/contracts": "*",
+    "@homework-manga/scenario-core": "*",
+    "firebase-admin": "^14.0.0",
+    "jsonrepair": "^3.12.0",
+    "sharp": "^0.34.0",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.3"
+  }
+}

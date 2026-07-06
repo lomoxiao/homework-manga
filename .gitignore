@@ -3,6 +3,8 @@ dist/
 private/
 jobs/
 uploads/
+.env
+.codex-runner-home/
 *.local
 *.pdf
 *.png
