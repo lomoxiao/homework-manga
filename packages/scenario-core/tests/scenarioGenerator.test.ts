@@ -1,5 +1,5 @@
 import { generateScenario, parseDivision } from "../src/scenarioGenerator";
-import { defaultDraft } from "../src/workspace";
+import { defaultDraft } from "@homework-manga/contracts/defaultDraft";
 
 describe("division scenario generator", () => {
   it("parses an exact division formula", () => {

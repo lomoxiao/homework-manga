@@ -1,0 +1,13 @@
+{
+  "name": "@homework-manga/scenario-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "dependencies": {
+    "@homework-manga/contracts": "*",
+    "@homework-manga/renderer": "*"
+  }
+}

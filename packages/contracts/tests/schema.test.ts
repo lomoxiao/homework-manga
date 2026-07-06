@@ -1,5 +1,5 @@
-import mangaPlan from "../samples/manga_plan.json";
-import renderConfig from "../samples/final_render_config.json";
+import mangaPlan from "../fixtures/manga_plan.json";
+import renderConfig from "../fixtures/final_render_config.json";
 import { mangaPlanSchema, renderConfigSchema } from "../src/schema";
 
 describe("sample JSON", () => {

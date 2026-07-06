@@ -1,5 +1,5 @@
 import { generateScenario } from "../src/scenarioGenerator";
-import { defaultDraft } from "../src/workspace";
+import { defaultDraft } from "@homework-manga/contracts/defaultDraft";
 
 describe("cross-curriculum safety corpus", () => {
   it.each([

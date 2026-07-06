@@ -1,18 +1,15 @@
 {
   "name": "homework-manga",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
+  "workspaces": ["packages/*", "apps/*"],
   "scripts": {
-    "dev": "vite",
-    "build": "tsc --noEmit --pretty false && vite build",
+    "dev": "npm run dev --workspace @homework-manga/web",
+    "build": "tsc --noEmit --pretty false && npm run build --workspace @homework-manga/web",
     "typecheck": "tsc --noEmit --pretty false",
     "test": "vitest run",
     "contract:check": "node ../scripts/sync-manga-plan-contract.mjs --check"
-  },
-  "dependencies": {
-    "firebase": "^12.0.0",
-    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@types/node": "^22.15.32",

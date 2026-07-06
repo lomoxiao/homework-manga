@@ -1,4 +1,4 @@
-import type { BarModelData } from "../schema";
+import type { BarModelData } from "@homework-manga/contracts/schema";
 import { escapeHtml } from "../utils";
 
 export function renderBarModel(data: BarModelData): string {

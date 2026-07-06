@@ -1,4 +1,4 @@
-import type { HomeworkDraft } from "./schema";
+import type { HomeworkDraft } from "@homework-manga/contracts/schema";
 export const curriculumDomains = { number_calculation: "数と計算", geometry: "図形", measurement: "測定", change_relationships: "変化と関係", data: "データの活用" } as const;
 export function classifyProblem(text: string): Pick<HomeworkDraft, "curriculumDomain" | "topic" | "problemType"> {
   if (/グラフ|表|平均|最頻値|データ/.test(text)) return { curriculumDomain: "data", topic: /平均/.test(text) ? "average" : "tables_graphs", problemType: "table_graph" };

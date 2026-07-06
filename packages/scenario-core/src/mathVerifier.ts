@@ -1,4 +1,4 @@
-import type { HomeworkDraft, Verification } from "./schema";
+import type { HomeworkDraft, Verification } from "@homework-manga/contracts/schema";
 type Rational = { n: bigint; d: bigint };
 const gcd = (a: bigint, b: bigint): bigint => b === 0n ? (a < 0n ? -a : a) : gcd(b, a % b);
 function rational(n: bigint, d = 1n): Rational { if (d === 0n) throw new Error("zero denominator"); const g = gcd(n, d); const sign = d < 0n ? -1n : 1n; return { n: n / g * sign, d: d / g * sign }; }

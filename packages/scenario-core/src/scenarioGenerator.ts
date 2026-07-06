@@ -1,6 +1,6 @@
-import type { HomeworkDraft, MangaPlan, MangaPanel, VisualAid } from "./schema";
-import rawCatalog from "../public/assets/metadata.json";
-import { assetCatalogSchema, selectAsset } from "./assets";
+import type { HomeworkDraft, MangaPlan, MangaPanel, VisualAid } from "@homework-manga/contracts/schema";
+import rawCatalog from "@homework-manga/renderer/assets/metadata.json";
+import { assetCatalogSchema, selectAsset } from "@homework-manga/renderer/assets";
 import { classifyProblem } from "./curriculum";
 import { verifyDraft } from "./mathVerifier";
 const assetCatalog = assetCatalogSchema.parse(rawCatalog).assets;

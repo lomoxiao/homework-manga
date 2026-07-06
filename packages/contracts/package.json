@@ -1,0 +1,15 @@
+{
+  "name": "@homework-manga/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./schema": "./src/schema.ts",
+    "./mangaPlan21": "./src/mangaPlan21.ts",
+    "./defaultDraft": "./src/defaultDraft.ts",
+    "./fixtures/*": "./fixtures/*"
+  },
+  "dependencies": {
+    "zod": "^3.25.67"
+  }
+}

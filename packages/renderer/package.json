@@ -1,0 +1,16 @@
+{
+  "name": "@homework-manga/renderer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./assets": "./src/assets.ts",
+    "./utils": "./src/utils.ts",
+    "./svg/*": "./src/svg/*.ts",
+    "./assets/metadata.json": "./assets/metadata.json"
+  },
+  "dependencies": {
+    "@homework-manga/contracts": "*",
+    "zod": "^3.25.67"
+  }
+}

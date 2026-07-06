@@ -1,4 +1,4 @@
-import catalog from "../public/assets/metadata.json";
+import catalog from "../assets/metadata.json";
 import { assetCatalogSchema, selectAsset } from "../src/assets";
 
 describe("asset catalog", () => {
