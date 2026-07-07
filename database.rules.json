@@ -12,18 +12,6 @@
         "sourceImage": { ".validate": "!data.exists() || newData.val() === data.val()" },
         "createdAt": { ".validate": "!data.exists() || newData.val() === data.val()" }
       }
-    },
-    "homeworkJobs": {
-      ".indexOn": "status",
-      "$jobId": {
-        ".read": "auth != null && data.child('ownerUid').val() === auth.uid",
-        ".write": "auth != null && ((!data.exists() && newData.child('ownerUid').val() === auth.uid && newData.child('trigger/provider').val() === 'web') || (data.exists() && data.child('ownerUid').val() === auth.uid && (!newData.exists() || newData.child('ownerUid').val() === auth.uid)))",
-        "ownerUid": { ".validate": "!data.exists() || newData.val() === data.val()" },
-        "sourceImage": { ".validate": "!data.exists() || newData.val() === data.val()" },
-        "trigger": { ".validate": "!newData.exists() || newData.child('provider').val() === 'web'" },
-        "slack": { ".validate": "newData.val() === data.val()" },
-        "createdAt": { ".validate": "!data.exists() || newData.val() === data.val()" }
-      }
     }
   }
 }
