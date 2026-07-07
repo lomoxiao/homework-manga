@@ -32,12 +32,18 @@ const shortText = z.string().min(1).max(200);
 const position = z.enum(["left", "center", "right", "bottom"]);
 const mark = z.object({ value: rationalSchema, label: z.string().max(50).optional() }).strict();
 
+export const GEOMETRY_SHAPES = ["rectangle", "square", "triangle", "right_triangle", "circle"] as const;
+export const SHAPE_LABEL_SIDES = ["top", "bottom", "left", "right", "center"] as const;
+const shapeLabel = z.object({ text: z.string().min(1).max(50), side: z.enum(SHAPE_LABEL_SIDES) }).strict();
+
 export const rendererSpecSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("table"), position, headers: z.array(shortText).min(1).max(10), rows: z.array(z.array(z.string().max(200)).min(1).max(10)).min(1).max(20) }).strict(),
   z.object({ type: z.literal("bar_model"), position, total: rationalSchema, groupCount: z.number().int().positive().max(100), perGroup: rationalSchema }).strict(),
   z.object({ type: z.literal("fraction_bar"), position, numerator: z.number().int().nonnegative(), denominator: z.number().int().positive().max(100) }).strict(),
   z.object({ type: z.literal("number_line"), position, min: rationalSchema, max: rationalSchema, tickCount: z.number().int().min(1).max(20), marks: z.array(mark).max(20) }).strict(),
-  z.object({ type: z.literal("comparison"), position, left: rationalSchema, right: rationalSchema, leftLabel: shortText, rightLabel: shortText, unit: z.string().max(30), operator: z.enum(["<", "=", ">"]), ratio: rationalSchema.nullable() }).strict()
+  z.object({ type: z.literal("comparison"), position, left: rationalSchema, right: rationalSchema, leftLabel: shortText, rightLabel: shortText, unit: z.string().max(30), operator: z.enum(["<", "=", ">"]), ratio: rationalSchema.nullable() }).strict(),
+  z.object({ type: z.literal("geometry_shape"), position, shape: z.enum(GEOMETRY_SHAPES), width: rationalSchema.nullable(), height: rationalSchema.nullable(), radius: rationalSchema.nullable(), unit: z.string().max(10), labels: z.array(shapeLabel).max(6), highlightSide: z.enum(["top", "bottom", "left", "right", "none"]) }).strict(),
+  z.object({ type: z.literal("area_grid"), position, columns: z.number().int().min(1).max(20), rows: z.number().int().min(1).max(20), unit: z.string().max(10), highlightCells: z.number().int().min(0).max(400).nullable() }).strict()
 ]);
 export type RendererSpec = z.infer<typeof rendererSpecSchema>;
 

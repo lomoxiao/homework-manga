@@ -19,8 +19,10 @@ export function buildFallbackScenario(approved: ApprovedProblem): RepairedScenar
     result: approved.correctAnswer.slice(0, 200)
   }];
   const panels = buildTemplatePanels(approved, steps);
+  const classification = classifyProblem(approved.problemText);
 
   const division = verified ? parseDivisionEquation(expression) : null;
+  const area = classification.curriculumDomain === "geometry" && verified ? parseMultiplicationEquation(expression) : null;
   if (division) {
     panels[2] = {
       ...panels[2],
@@ -32,9 +34,19 @@ export function buildFallbackScenario(approved: ApprovedProblem): RepairedScenar
         perGroup: { numerator: division.perGroup, denominator: 1 }
       }
     };
+  } else if (area) {
+    panels[2] = {
+      ...panels[2],
+      visualAid: {
+        type: "area_grid",
+        position: "center",
+        columns: area.columns,
+        rows: area.rows,
+        unit: /cm/.test(approved.problemText) ? "cm²" : "",
+        highlightCells: null
+      }
+    };
   }
-
-  const classification = classifyProblem(approved.problemText);
   return {
     title: `${topicTitle(classification.topic)}`,
     problemClassification: classification.topic,
@@ -48,6 +60,16 @@ function parseDivisionEquation(formula: string): { total: number; groups: number
   if (!match) return null;
   const [, total, groups, perGroup] = match.map(Number);
   return total && groups && perGroup && total / groups === perGroup ? { total, groups, perGroup } : null;
+}
+
+/** 面積の式(たて×よこ)をマス目図に落とす。20 を超える辺は決定論では描かない。 */
+function parseMultiplicationEquation(formula: string): { columns: number; rows: number } | null {
+  const match = formula.match(/(\d+)\s*[×x*]\s*(\d+)\s*[=＝]\s*(\d+)/i);
+  if (!match) return null;
+  const [, rows, columns, product] = match.map(Number);
+  if (!rows || !columns || rows * columns !== product) return null;
+  if (rows > 20 || columns > 20) return null;
+  return { columns, rows };
 }
 
 function topicTitle(topic: string): string {

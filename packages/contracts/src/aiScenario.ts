@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { coerceRational, compareRational, divideRational, type Rational } from "./rational";
 import {
-  MANGA_PLAN_VERSION, PANEL_ROLES, mangaPlanV3Schema, repairNoteSchema,
+  GEOMETRY_SHAPES, MANGA_PLAN_VERSION, PANEL_ROLES, SHAPE_LABEL_SIDES, mangaPlanV3Schema, repairNoteSchema,
   type MangaPlanV3, type PanelRole, type RendererSpec, type RepairNote, type SolutionStep
 } from "./mangaPlan";
 import type { ApprovedProblem } from "./approvedProblem";
@@ -337,6 +337,56 @@ export function compileVisualIntent(intent: Record<string, unknown> | null): Vis
           operator: comparison < 0 ? "<" : comparison > 0 ? ">" : "=",
           ratio: right.numerator === 0 ? null : divideRational(left, right)
         },
+        notes
+      };
+    }
+    case "labeled_shape": {
+      const shape = String(intent.shape ?? "") as (typeof GEOMETRY_SHAPES)[number];
+      if (!(GEOMETRY_SHAPES as readonly string[]).includes(shape)) return { ok: false, detail: `labeled_shape の shape を読み取れません: ${String(intent.shape ?? "(空)")}` };
+      const width = rational("width");
+      const height = rational("height");
+      const radius = rational("radius");
+      if (shape === "circle" && !radius) return { ok: false, detail: "circle には radius が必要です" };
+      if ((shape === "rectangle" || shape === "right_triangle" || shape === "triangle") && (!width || !height)) return { ok: false, detail: `${shape} には width と height が必要です` };
+      if (shape === "square" && !width && !height) return { ok: false, detail: "square には width (一辺) が必要です" };
+      const highlightRaw = String(intent.highlightSide ?? "none");
+      const highlightSide = (["top", "bottom", "left", "right", "none"] as const).includes(highlightRaw as never) ? (highlightRaw as "top" | "bottom" | "left" | "right" | "none") : "none";
+      const labels: { text: string; side: (typeof SHAPE_LABEL_SIDES)[number] }[] = [];
+      for (const rawLabel of (Array.isArray(intent.shapeLabels) ? intent.shapeLabels : []).slice(0, 6)) {
+        const record = (rawLabel && typeof rawLabel === "object" ? rawLabel : {}) as Record<string, unknown>;
+        const text = String(record.text ?? "").trim().slice(0, 50);
+        const labelSide = String(record.side ?? "") as (typeof SHAPE_LABEL_SIDES)[number];
+        if (!text || !(SHAPE_LABEL_SIDES as readonly string[]).includes(labelSide)) {
+          notes.push(note("VISUAL_DROPPED", "不正な図形ラベルを除外しました"));
+          continue;
+        }
+        labels.push({ text, side: labelSide });
+      }
+      return {
+        ok: true,
+        spec: {
+          type: "geometry_shape", position: "center", shape,
+          width: shape === "square" ? (width ?? height) : width,
+          height: shape === "square" ? (width ?? height) : height,
+          radius,
+          unit: String(intent.shapeUnit ?? "").trim().slice(0, 10),
+          labels, highlightSide
+        },
+        notes
+      };
+    }
+    case "area_grid": {
+      const columns = toPositiveInt(intent.gridColumns, 20);
+      const rows = toPositiveInt(intent.gridRows, 20);
+      if (!columns || !rows) return { ok: false, detail: "area_grid の gridColumns / gridRows を読み取れません" };
+      let highlightCells = toNonNegativeInt(intent.highlightCells);
+      if (highlightCells !== null && highlightCells > columns * rows) {
+        notes.push(note("RATIONAL_NORMALIZED", `highlightCells をマス目総数 ${columns * rows} に丸めました`));
+        highlightCells = columns * rows;
+      }
+      return {
+        ok: true,
+        spec: { type: "area_grid", position: "center", columns, rows, unit: String(intent.shapeUnit ?? "").trim().slice(0, 10), highlightCells },
         notes
       };
     }

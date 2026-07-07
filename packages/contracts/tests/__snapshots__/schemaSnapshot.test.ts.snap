@@ -957,6 +957,160 @@ exports[`contract snapshots > MangaPlan v3 1`] = `
                     ],
                     "type": "object",
                   },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "height": {
+                        "anyOf": [
+                          {
+                            "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/visualAid/anyOf/1/properties/total",
+                          },
+                          {
+                            "type": "null",
+                          },
+                        ],
+                      },
+                      "highlightSide": {
+                        "enum": [
+                          "top",
+                          "bottom",
+                          "left",
+                          "right",
+                          "none",
+                        ],
+                        "type": "string",
+                      },
+                      "labels": {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "side": {
+                              "enum": [
+                                "top",
+                                "bottom",
+                                "left",
+                                "right",
+                                "center",
+                              ],
+                              "type": "string",
+                            },
+                            "text": {
+                              "maxLength": 50,
+                              "minLength": 1,
+                              "type": "string",
+                            },
+                          },
+                          "required": [
+                            "text",
+                            "side",
+                          ],
+                          "type": "object",
+                        },
+                        "maxItems": 6,
+                        "type": "array",
+                      },
+                      "position": {
+                        "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/visualAid/anyOf/0/properties/position",
+                      },
+                      "radius": {
+                        "anyOf": [
+                          {
+                            "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/visualAid/anyOf/1/properties/total",
+                          },
+                          {
+                            "type": "null",
+                          },
+                        ],
+                      },
+                      "shape": {
+                        "enum": [
+                          "rectangle",
+                          "square",
+                          "triangle",
+                          "right_triangle",
+                          "circle",
+                        ],
+                        "type": "string",
+                      },
+                      "type": {
+                        "const": "geometry_shape",
+                        "type": "string",
+                      },
+                      "unit": {
+                        "maxLength": 10,
+                        "type": "string",
+                      },
+                      "width": {
+                        "anyOf": [
+                          {
+                            "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/visualAid/anyOf/1/properties/total",
+                          },
+                          {
+                            "type": "null",
+                          },
+                        ],
+                      },
+                    },
+                    "required": [
+                      "type",
+                      "position",
+                      "shape",
+                      "width",
+                      "height",
+                      "radius",
+                      "unit",
+                      "labels",
+                      "highlightSide",
+                    ],
+                    "type": "object",
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "columns": {
+                        "maximum": 20,
+                        "minimum": 1,
+                        "type": "integer",
+                      },
+                      "highlightCells": {
+                        "anyOf": [
+                          {
+                            "maximum": 400,
+                            "minimum": 0,
+                            "type": "integer",
+                          },
+                          {
+                            "type": "null",
+                          },
+                        ],
+                      },
+                      "position": {
+                        "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/visualAid/anyOf/0/properties/position",
+                      },
+                      "rows": {
+                        "maximum": 20,
+                        "minimum": 1,
+                        "type": "integer",
+                      },
+                      "type": {
+                        "const": "area_grid",
+                        "type": "string",
+                      },
+                      "unit": {
+                        "maxLength": 10,
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "type",
+                      "position",
+                      "columns",
+                      "rows",
+                      "unit",
+                      "highlightCells",
+                    ],
+                    "type": "object",
+                  },
                 ],
               },
             },

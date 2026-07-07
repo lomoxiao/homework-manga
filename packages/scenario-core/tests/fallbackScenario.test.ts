@@ -21,6 +21,32 @@ describe("buildFallbackScenario", () => {
     expect(mangaPlanV3Schema.safeParse(plan).success).toBe(true);
   });
 
+  it("面積問題はマス目図解つきの6コマを合成し、厳格スキーマを通過する", () => {
+    const approved = approvedProblemSchema.parse({
+      problemText: "たての長さが4cm、よこの長さが6cmの長方形があります。面積は何cm²ですか。",
+      studentAnswer: "4 + 6 = 10",
+      correctAnswer: "4 × 6 = 24",
+      mistakeCause: "面積の公式ではなく辺を足している",
+      canonicalAnswer: "4 × 6 = 24"
+    });
+    const scenario = buildFallbackScenario(approved);
+    expect(scenario.panels[2].visualAid).toMatchObject({ type: "area_grid", columns: 6, rows: 4, unit: "cm²" });
+    const plan = compileMangaPlan({ jobId: "fallback-area", approved, scenario, notes: [], planSource: "fallback" });
+    expect(mangaPlanV3Schema.safeParse(plan).success).toBe(true);
+  });
+
+  it("辺が20を超える面積問題ではマス目図解を付けない", () => {
+    const approved = approvedProblemSchema.parse({
+      problemText: "たて30m、よこ50mの畑の面積は何m²ですか。",
+      studentAnswer: "80",
+      correctAnswer: "30 × 50 = 1500",
+      mistakeCause: "辺を足した",
+      canonicalAnswer: "30 × 50 = 1500"
+    });
+    const scenario = buildFallbackScenario(approved);
+    expect(scenario.panels[2].visualAid).toBeUndefined();
+  });
+
   it("検証できない答えでは式を含めず、それでも完成する", () => {
     const approved = approvedProblemSchema.parse({
       problemText: "三角形をかきましょう。",

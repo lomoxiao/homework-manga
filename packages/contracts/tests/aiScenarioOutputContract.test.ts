@@ -16,7 +16,9 @@ const nullIntent = {
   headers: null, rows: null, total: null, groupCount: null, numerator: null, denominator: null,
   min: null, max: null, tickCount: null, marks: null,
   left: { numerator: 9, denominator: 5 }, right: { numerator: 5, denominator: 2 },
-  leftLabel: "赤", rightLabel: "黄色", unit: "m"
+  leftLabel: "赤", rightLabel: "黄色", unit: "m",
+  shape: null, width: null, height: null, radius: null, shapeUnit: null, shapeLabels: null,
+  highlightSide: null, gridColumns: null, gridRows: null, highlightCells: null
 };
 
 const schemaCompliantOutput = {
@@ -59,5 +61,32 @@ describe("aiScenarioOutputJsonSchema と受け側の整合", () => {
   it("required 一覧が寛容スキーマの主要フィールドと一致している", () => {
     const required = aiScenarioOutputJsonSchema.required as string[];
     expect(required.sort()).toEqual(["panels", "problemClassification", "reason", "solutionSteps", "status", "title", "verification"].sort());
+  });
+
+  it("スキーマ準拠の geometry intent が修復層を通過する", () => {
+    const geometryIntent = {
+      ...nullIntent,
+      type: "labeled_shape",
+      left: null, right: null, leftLabel: null, rightLabel: null, unit: null,
+      shape: "rectangle",
+      width: { numerator: 6, denominator: 1 }, height: { numerator: 4, denominator: 1 },
+      shapeUnit: "cm",
+      shapeLabels: [{ text: "4cm", side: "left" }, { text: "6cm", side: "bottom" }],
+      highlightSide: "left"
+    };
+    const output = {
+      ...schemaCompliantOutput,
+      problemClassification: "geometry",
+      panels: (schemaCompliantOutput.panels as Record<string, unknown>[]).map((item) => ({
+        ...item,
+        visualIntent: item.role === "visualization" ? geometryIntent : null
+      }))
+    };
+    expect(aiScenarioLooseSchema.safeParse(output).success).toBe(true);
+    const result = repairScenario(output, approved);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.scenario.panels[2].visualAid).toMatchObject({ type: "geometry_shape", shape: "rectangle", highlightSide: "left" });
+    }
   });
 });

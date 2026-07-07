@@ -102,6 +102,46 @@ describe("repairScenario: 形式の乱れは機械修復する", () => {
     }
   });
 
+  it("compiles labeled_shape with derived square sides and highlight", () => {
+    const intent = {
+      type: "labeled_shape", requirement: "optional", shape: "square",
+      width: { numerator: 5, denominator: 1 }, height: null, radius: null, shapeUnit: "cm",
+      shapeLabels: [{ text: "5cm", side: "bottom" }, { text: "", side: "left" }, { text: "?", side: "diagonal" }],
+      highlightSide: "bottom"
+    };
+    const result = repairScenario(validScenario({ panels: PANEL_ROLES.map((role) => panel(role, role === "visualization" ? { visualIntent: intent } : {})) }), approved);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      const aid = result.scenario.panels[2].visualAid;
+      expect(aid).toMatchObject({
+        type: "geometry_shape", shape: "square",
+        width: { numerator: 5, denominator: 1 }, height: { numerator: 5, denominator: 1 },
+        labels: [{ text: "5cm", side: "bottom" }], highlightSide: "bottom", unit: "cm"
+      });
+      expect(notesOf(result)).toContain("VISUAL_DROPPED");
+    }
+  });
+
+  it("drops labeled_shape without required dimensions", () => {
+    const intent = { type: "labeled_shape", shape: "circle", radius: null };
+    const result = repairScenario(validScenario({ panels: PANEL_ROLES.map((role) => panel(role, role === "visualization" ? { visualIntent: intent } : {})) }), approved);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.scenario.panels[2].visualAid).toBeUndefined();
+      expect(notesOf(result)).toContain("VISUAL_DROPPED");
+    }
+  });
+
+  it("compiles area_grid and clamps highlightCells to the grid size", () => {
+    const intent = { type: "area_grid", gridColumns: 6, gridRows: 4, shapeUnit: "cm²", highlightCells: 99 };
+    const result = repairScenario(validScenario({ panels: PANEL_ROLES.map((role) => panel(role, role === "visualization" ? { visualIntent: intent } : {})) }), approved);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.scenario.panels[2].visualAid).toMatchObject({ type: "area_grid", columns: 6, rows: 4, unit: "cm²", highlightCells: 24 });
+      expect(notesOf(result)).toContain("RATIONAL_NORMALIZED");
+    }
+  });
+
   it("moves non-formula strings out of formula", () => {
     const result = repairScenario(validScenario({ panels: PANEL_ROLES.map((role) => panel(role, { formula: ["24 ÷ 3 = 8", "答えを確かめよう"] })) }), approved);
     expect(result.ok).toBe(true);
