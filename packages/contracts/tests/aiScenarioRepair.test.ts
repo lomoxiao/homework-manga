@@ -142,6 +142,13 @@ describe("repairScenario: 形式の乱れは機械修復する", () => {
     }
   });
 
+  it("compiles angle_measure into an angle_fan with a default label", () => {
+    const intent = { type: "angle_measure", degrees: 45, angleLabel: null };
+    const result = repairScenario(validScenario({ panels: PANEL_ROLES.map((role) => panel(role, role === "visualization" ? { visualIntent: intent } : {})) }), approved);
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.scenario.panels[2].visualAid).toMatchObject({ type: "angle_fan", degrees: 45, label: "45°" });
+  });
+
   it("moves non-formula strings out of formula", () => {
     const result = repairScenario(validScenario({ panels: PANEL_ROLES.map((role) => panel(role, { formula: ["24 ÷ 3 = 8", "答えを確かめよう"] })) }), approved);
     expect(result.ok).toBe(true);

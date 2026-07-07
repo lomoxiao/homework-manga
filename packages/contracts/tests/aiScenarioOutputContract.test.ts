@@ -18,7 +18,8 @@ const nullIntent = {
   left: { numerator: 9, denominator: 5 }, right: { numerator: 5, denominator: 2 },
   leftLabel: "赤", rightLabel: "黄色", unit: "m",
   shape: null, width: null, height: null, radius: null, shapeUnit: null, shapeLabels: null,
-  highlightSide: null, gridColumns: null, gridRows: null, highlightCells: null
+  highlightSide: null, gridColumns: null, gridRows: null, highlightCells: null,
+  degrees: null, angleLabel: null
 };
 
 const schemaCompliantOutput = {

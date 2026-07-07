@@ -11,7 +11,10 @@ describe("MangaPlan 2.1 visual renderer", () => {
       { type: "geometry_shape", position: "center", shape: "rectangle", width: { numerator: 6, denominator: 1 }, height: { numerator: 4, denominator: 1 }, radius: null, unit: "cm", labels: [{ text: "4cm", side: "left" }, { text: "6cm", side: "bottom" }], highlightSide: "left" },
       { type: "geometry_shape", position: "center", shape: "circle", width: null, height: null, radius: { numerator: 3, denominator: 1 }, unit: "cm", labels: [], highlightSide: "none" },
       { type: "geometry_shape", position: "center", shape: "right_triangle", width: { numerator: 3, denominator: 1 }, height: { numerator: 4, denominator: 1 }, radius: null, unit: "", labels: [], highlightSide: "none" },
-      { type: "area_grid", position: "center", columns: 6, rows: 4, unit: "cm²", highlightCells: 10 }
+      { type: "area_grid", position: "center", columns: 6, rows: 4, unit: "cm²", highlightCells: 10 },
+      { type: "angle_fan", position: "center", degrees: 90, label: "90°" },
+      { type: "angle_fan", position: "center", degrees: 360, label: "1回転" },
+      { type: "angle_fan", position: "center", degrees: 200, label: "" }
     ] as const;
     for (const input of specs) { const html = renderSafeVisualAid(visualAidSpecSchema.parse(input)); expect(html).not.toMatch(/NaN|Infinity/); }
   });

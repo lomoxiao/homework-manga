@@ -390,6 +390,12 @@ export function compileVisualIntent(intent: Record<string, unknown> | null): Vis
         notes
       };
     }
+    case "angle_measure": {
+      const degrees = toPositiveInt(intent.degrees, 360);
+      if (!degrees) return { ok: false, detail: "angle_measure の degrees を読み取れません" };
+      const label = String(intent.angleLabel ?? "").trim().slice(0, 50) || `${degrees}°`;
+      return { ok: true, spec: { type: "angle_fan", position: "center", degrees, label }, notes };
+    }
     default:
       return { ok: false, detail: `未知の visualIntent type: ${type || "(空)"}` };
   }

@@ -1111,6 +1111,34 @@ exports[`contract snapshots > MangaPlan v3 1`] = `
                     ],
                     "type": "object",
                   },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "degrees": {
+                        "maximum": 360,
+                        "minimum": 1,
+                        "type": "integer",
+                      },
+                      "label": {
+                        "maxLength": 50,
+                        "type": "string",
+                      },
+                      "position": {
+                        "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/visualAid/anyOf/0/properties/position",
+                      },
+                      "type": {
+                        "const": "angle_fan",
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "type",
+                      "position",
+                      "degrees",
+                      "label",
+                    ],
+                    "type": "object",
+                  },
                 ],
               },
             },

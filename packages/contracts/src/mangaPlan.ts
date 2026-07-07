@@ -43,7 +43,8 @@ export const rendererSpecSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("number_line"), position, min: rationalSchema, max: rationalSchema, tickCount: z.number().int().min(1).max(20), marks: z.array(mark).max(20) }).strict(),
   z.object({ type: z.literal("comparison"), position, left: rationalSchema, right: rationalSchema, leftLabel: shortText, rightLabel: shortText, unit: z.string().max(30), operator: z.enum(["<", "=", ">"]), ratio: rationalSchema.nullable() }).strict(),
   z.object({ type: z.literal("geometry_shape"), position, shape: z.enum(GEOMETRY_SHAPES), width: rationalSchema.nullable(), height: rationalSchema.nullable(), radius: rationalSchema.nullable(), unit: z.string().max(10), labels: z.array(shapeLabel).max(6), highlightSide: z.enum(["top", "bottom", "left", "right", "none"]) }).strict(),
-  z.object({ type: z.literal("area_grid"), position, columns: z.number().int().min(1).max(20), rows: z.number().int().min(1).max(20), unit: z.string().max(10), highlightCells: z.number().int().min(0).max(400).nullable() }).strict()
+  z.object({ type: z.literal("area_grid"), position, columns: z.number().int().min(1).max(20), rows: z.number().int().min(1).max(20), unit: z.string().max(10), highlightCells: z.number().int().min(0).max(400).nullable() }).strict(),
+  z.object({ type: z.literal("angle_fan"), position, degrees: z.number().int().min(1).max(360), label: z.string().max(50) }).strict()
 ]);
 export type RendererSpec = z.infer<typeof rendererSpecSchema>;
 

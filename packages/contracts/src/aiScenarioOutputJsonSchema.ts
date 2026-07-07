@@ -15,9 +15,9 @@ const aiRational = { type: ["object", "null"], additionalProperties: false, requ
 const aiTextArray = { type: ["array", "null"], maxItems: 10, items: { type: "string", minLength: 1, maxLength: 200 } };
 const aiIntent = {
   type: ["object", "null"], additionalProperties: false,
-  required: ["type", "requirement", "headers", "rows", "total", "groupCount", "numerator", "denominator", "min", "max", "tickCount", "marks", "left", "right", "leftLabel", "rightLabel", "unit", "shape", "width", "height", "radius", "shapeUnit", "shapeLabels", "highlightSide", "gridColumns", "gridRows", "highlightCells"],
+  required: ["type", "requirement", "headers", "rows", "total", "groupCount", "numerator", "denominator", "min", "max", "tickCount", "marks", "left", "right", "leftLabel", "rightLabel", "unit", "shape", "width", "height", "radius", "shapeUnit", "shapeLabels", "highlightSide", "gridColumns", "gridRows", "highlightCells", "degrees", "angleLabel"],
   properties: {
-    type: { enum: ["tabular_data", "equal_groups", "part_whole", "scale_marks", "compare_quantities", "labeled_shape", "area_grid"] },
+    type: { enum: ["tabular_data", "equal_groups", "part_whole", "scale_marks", "compare_quantities", "labeled_shape", "area_grid", "angle_measure"] },
     requirement: { enum: ["required", "optional"] },
     headers: aiTextArray,
     rows: { type: ["array", "null"], maxItems: 20, items: { type: "array", maxItems: 10, items: { type: "string", minLength: 1, maxLength: 200 } } },
@@ -43,7 +43,9 @@ const aiIntent = {
     highlightSide: { enum: ["top", "bottom", "left", "right", "none", null] },
     gridColumns: { type: ["integer", "null"], minimum: 1, maximum: 20 },
     gridRows: { type: ["integer", "null"], minimum: 1, maximum: 20 },
-    highlightCells: { type: ["integer", "null"], minimum: 0, maximum: 400 }
+    highlightCells: { type: ["integer", "null"], minimum: 0, maximum: 400 },
+    degrees: { type: ["integer", "null"], minimum: 1, maximum: 360 },
+    angleLabel: { type: ["string", "null"], maxLength: 50 }
   }
 };
 const aiVerification = { type: "object", additionalProperties: false, required: ["status", "confidence", "warnings"], properties: { status: { enum: ["verified", "needs_review", "unsupported"] }, confidence: { type: "number", minimum: 0, maximum: 1 }, warnings: { type: "array", maxItems: 20, items: { type: "string", maxLength: 500 } } } };
@@ -89,9 +91,9 @@ export function buildScenarioPrompt(approved: unknown): string {
   return [
     "Return exactly one JSON object matching the supplied JSON Schema. Generate instructional content only; presentation fields are added by code.",
     "Use this exact six-panel role order: problem, error_location, visualization, solution, check, transfer.",
-    "A panel has at most one visualIntent. Allowed intents only: tabular_data, equal_groups, part_whole, scale_marks, compare_quantities, labeled_shape, area_grid. Never emit derived values.",
+    "A panel has at most one visualIntent. Allowed intents only: tabular_data, equal_groups, part_whole, scale_marks, compare_quantities, labeled_shape, area_grid, angle_measure. Never emit derived values.",
     "For a visualIntent, fill only fields belonging to its type and set every other intent field to null. A missing visualIntent is null.",
-    "For geometry problems use labeled_shape (shape + width/height/radius + shapeUnit + shapeLabels; set highlightSide to the side the student misread, or none) to show the figure, or area_grid (gridColumns x gridRows cells + shapeUnit; highlightCells may mark the student's wrong count) to visualize area as unit squares. Classify such problems as geometry.",
+    "For geometry problems use labeled_shape (shape + width/height/radius + shapeUnit + shapeLabels; set highlightSide to the side the student misread, or none) to show the figure, area_grid (gridColumns x gridRows cells + shapeUnit; highlightCells may mark the student's wrong count) to visualize area as unit squares, or angle_measure (degrees + angleLabel) for angle size problems. Classify such problems as geometry.",
     "For verified output: reason is null. For needs_review or unsupported: title and problemClassification are null, solutionSteps and panels are empty arrays, and reason explains why.",
     "Classify by the mathematical operation being taught, not by how givens are displayed. A table_data problem asks the learner to read, complete, or aggregate a table. Merely presenting values in a table does not make it table_data. Questions asking 何倍/how many times or dividing by a reference quantity are quantity_comparison.",
     "All mathematical values inside visualIntent are normalized rationals: {numerator: integer, denominator: positive integer}.",

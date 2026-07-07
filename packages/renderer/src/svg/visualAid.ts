@@ -15,6 +15,7 @@ export function renderSafeVisualAid(spec: RendererSpec): string {
     case "comparison": return comparison(spec);
     case "geometry_shape": return geometryShape(spec);
     case "area_grid": return areaGrid(spec);
+    case "angle_fan": return angleFan(spec);
   }
 }
 function barModel(s: Extract<RendererSpec, { type: "bar_model" }>) { const cells = Array.from({ length: s.groupCount }, (_, i) => `<rect x="${20 + i * 360 / s.groupCount}" y="25" width="${360 / s.groupCount}" height="48" fill="#e8f4ff" stroke="#334"/><text x="${20 + (i + .5) * 360 / s.groupCount}" y="55" text-anchor="middle">${e(number(s.perGroup))}</text>`).join(""); return `<svg viewBox="0 0 400 100" role="img" aria-label="equal groups">${cells}<text x="200" y="94" text-anchor="middle">${e(number(s.total))}</text></svg>`; }
@@ -53,6 +54,20 @@ function geometryShape(s: Extract<RendererSpec, { type: "geometry_shape" }>) {
   };
   const labels = s.labels.map((label) => `<text x="${labelPos[label.side].x}" y="${labelPos[label.side].y}" text-anchor="middle" fill="${s.highlightSide === label.side ? HIGHLIGHT_STROKE : "#334"}">${e(label.text)}</text>`).join("");
   return `<svg viewBox="0 0 400 150" role="img" aria-label="labeled shape">${body}${labels}</svg>`;
+}
+
+function angleFan(s: Extract<RendererSpec, { type: "angle_fan" }>) {
+  const cx = 200, cy = 115, r = 80;
+  // SVG は y 軸が下向きなので反時計回りの角を負の角度で計算する
+  const sweep = Math.min(s.degrees, 359.9);
+  const rad = (-sweep * Math.PI) / 180;
+  const endX = +(cx + r * Math.cos(rad)).toFixed(2);
+  const endY = +(cy + r * Math.sin(rad)).toFixed(2);
+  const largeArc = sweep > 180 ? 1 : 0;
+  const fan = s.degrees >= 360
+    ? `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#ffd166" fill-opacity="0.5" stroke="#334" stroke-width="3"/>`
+    : `<path d="M${cx} ${cy}L${cx + r} ${cy}A${r} ${r} 0 ${largeArc} 0 ${endX} ${endY}Z" fill="#ffd166" fill-opacity="0.5" stroke="#334" stroke-width="3"/>`;
+  return `<svg viewBox="0 0 400 150" role="img" aria-label="angle">${fan}<text x="${cx}" y="142" text-anchor="middle">${e(s.label || `${s.degrees}°`)}</text></svg>`;
 }
 
 function areaGrid(s: Extract<RendererSpec, { type: "area_grid" }>) {
