@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { homeworkFigureSchema } from "./aiAnalysis";
 
 export const APPROVED_PROBLEM_VERSION = "3.0" as const;
 
@@ -12,6 +13,8 @@ export const approvedProblemSchema = z.object({
   correctAnswer: z.string().trim().min(1, "正しい答えを入力してください").max(500),
   mistakeCause: z.string().trim().min(1, "つまずきの原因を入力してください").max(1000),
   canonicalAnswer: z.string().max(500).default(""),
-  selectedProblemId: z.string().max(100).default("")
+  selectedProblemId: z.string().max(100).default(""),
+  /** 解析で読み取った図形情報(承認画面では編集せずそのまま運ぶ)。旧 Envelope 互換のため default。 */
+  figures: z.array(homeworkFigureSchema).max(5).default([])
 }).strict();
 export type ApprovedProblem = z.infer<typeof approvedProblemSchema>;

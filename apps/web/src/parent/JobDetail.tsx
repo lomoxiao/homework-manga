@@ -51,7 +51,8 @@ function AnalysisReview({ job }: { job: HomeworkJobV3 }) {
         correctAnswer: String(data.get("correctAnswer")),
         mistakeCause: String(data.get("mistakeCause")),
         canonicalAnswer: String(data.get("correctAnswer")),
-        selectedProblemId: problem.id
+        selectedProblemId: problem.id,
+        figures: problem.figures
       });
       await approveJob(job, approved);
     } catch (cause) {
@@ -87,6 +88,19 @@ function AnalysisReview({ job }: { job: HomeworkJobV3 }) {
         <Field key={`${problem.id}-s`} name="studentAnswer" label="子どもの答え" value={problem.studentAnswer} confidence={problem.confidence.studentAnswer} />
         <Field key={`${problem.id}-c`} name="correctAnswer" label="正しい答え" value={problem.correctAnswerCandidate} confidence={problem.confidence.correctAnswerCandidate} />
         <Field key={`${problem.id}-m`} name="mistakeCause" label="つまずきの原因" value={problem.mistakeCause} confidence={problem.confidence.mistakeCause} />
+        {problem.figures.length > 0 && (
+          <div class="figure-list">
+            <p>読み取った図 ({problem.figures.length}件):</p>
+            <ul>
+              {problem.figures.map((figure, index) => (
+                <li key={index}>
+                  <b>{figureKindLabel(figure.kind)}</b> {figure.description}
+                  {figure.relationToMistake && <span class="figure-relation"> — {figure.relationToMistake}</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         {[...analysis.warnings, ...problem.warnings].length > 0 && (
           <p class="warning">{[...analysis.warnings, ...problem.warnings].join(" / ")}</p>
         )}
@@ -97,6 +111,16 @@ function AnalysisReview({ job }: { job: HomeworkJobV3 }) {
       </form>
     </div>
   );
+}
+
+function figureKindLabel(kind: string): string {
+  const labels: Record<string, string> = {
+    diagram: "図形",
+    graph: "グラフ",
+    illustration: "さし絵",
+    student_drawing: "子どもの書き込み"
+  };
+  return labels[kind] ?? kind;
 }
 
 function Field({ name, label, value, confidence }: { name: string; label: string; value: string; confidence: number }) {

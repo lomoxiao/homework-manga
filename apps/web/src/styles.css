@@ -105,6 +105,9 @@ button.danger { color: var(--error); border-color: #f3c8c8; }
 .problem-candidates { display: flex; flex-direction: column; gap: 8px; }
 .problem-candidate { text-align: left; border-radius: 12px; display: flex; flex-direction: column; }
 .problem-candidate.selected { border-color: var(--primary); background: #fff4ea; }
+.figure-list { font-size: 13px; background: #f7f3ec; border-radius: 12px; padding: 10px 14px; }
+.figure-list ul { margin: 6px 0 0; padding-left: 18px; }
+.figure-relation { color: #8a6100; }
 .repair-notes { font-size: 13px; }
 .repair-notes pre { overflow: auto; background: #f7f3ec; border-radius: 8px; padding: 8px; }
 .repair-notes code { background: #f0e6d6; padding: 0 6px; border-radius: 6px; }
