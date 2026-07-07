@@ -1,6 +1,6 @@
-import type { HomeworkDraft } from "@homework-manga/contracts/schema";
 export const curriculumDomains = { number_calculation: "数と計算", geometry: "図形", measurement: "測定", change_relationships: "変化と関係", data: "データの活用" } as const;
-export function classifyProblem(text: string): Pick<HomeworkDraft, "curriculumDomain" | "topic" | "problemType"> {
+export type ProblemClassification = { curriculumDomain: keyof typeof curriculumDomains; topic: string; problemType: string };
+export function classifyProblem(text: string): ProblemClassification {
   if (/グラフ|表|平均|最頻値|データ/.test(text)) return { curriculumDomain: "data", topic: /平均/.test(text) ? "average" : "tables_graphs", problemType: "table_graph" };
   if (/面積|体積|角|三角形|四角形|円|周/.test(text)) return { curriculumDomain: "geometry", topic: /体積/.test(text) ? "volume" : /面積/.test(text) ? "area" : "shapes", problemType: "word_problem" };
   if (/時刻|時間|長さ|重さ|かさ|cm|km|kg|L|リットル/.test(text)) return { curriculumDomain: "measurement", topic: "measurement_units", problemType: "word_problem" };

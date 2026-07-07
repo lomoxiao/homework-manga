@@ -1,4 +1,4 @@
-import { rendererSpecSchema, type RendererSpec } from "@homework-manga/contracts/mangaPlan21";
+import { rendererSpecSchema, type RendererSpec } from "@homework-manga/contracts/mangaPlan";
 import { escapeHtml } from "../utils";
 
 export const visualAidSpecSchema = rendererSpecSchema;

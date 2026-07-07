@@ -11,8 +11,7 @@
     "dev": "npm run dev --workspace @homework-manga/web",
     "build": "tsc --noEmit --pretty false && npm run build --workspace @homework-manga/web",
     "typecheck": "tsc --noEmit --pretty false",
-    "test": "vitest run",
-    "contract:check": "node ../scripts/sync-manga-plan-contract.mjs --check"
+    "test": "vitest run"
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.5",

@@ -33,19 +33,15 @@ npm run build
 
 ## データ
 
-- `packages/contracts/fixtures/manga_plan.json`: 問題、誤答、正答、6コマの教材計画
-- `packages/contracts/fixtures/final_render_config.json`: A4ページとテーマ設定
-- `schemas/`: 外部ツールでも利用できるJSON Schema Draft 2020-12
-- `packages/contracts/src/schema.ts`: 実行時検証に使用するZodスキーマ(全パッケージの単一ソース)
+- `packages/contracts/src/mangaPlan.ts`: MangaPlan v3(実行時検証に使用するZodスキーマ、全パッケージの単一ソース)
+- `packages/contracts/tests/__snapshots__/`: 契約スナップショット(構造変更の検知)
 
 ## リポジトリ構成(npm workspaces モノレポ)
 
-- `packages/contracts`: Zodスキーマ・型定義の単一ソース(schema / mangaPlan21 / defaultDraft / fixtures)
+- `packages/contracts`: Zodスキーマ・型定義の単一ソース(mangaPlan / aiAnalysis / aiScenario / approvedProblem / homeworkJob)
 - `packages/scenario-core`: 決定論的シナリオ生成・数学検証・単元分類
 - `packages/renderer`: SVG図解・HTMLレンダリング・素材カタログ(`assets/metadata.json`)
 - `apps/web`: Vite SPA(エントリ `apps/web/index.html`、静的素材 `apps/web/public/`)
-
-アプリは起動時に両方のサンプルJSONを検証します。不正なデータは描画しません。
 
 ## 設計判断
 
