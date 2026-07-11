@@ -35,7 +35,8 @@ async function main() {
     correctAnswer: problem.correctAnswerCandidate || "(未確認)",
     mistakeCause: problem.mistakeCause || "(未分析)",
     canonicalAnswer: problem.correctAnswerCandidate,
-    selectedProblemId: problem.id
+    selectedProblemId: problem.id,
+    figures: problem.figures
   });
 
   const next = transitionPhase({ phase: job.phase, runState: job.runState }, "scripting", "queued");
