@@ -1139,6 +1139,34 @@ exports[`contract snapshots > MangaPlan v3 1`] = `
                     ],
                     "type": "object",
                   },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "caption": {
+                        "maxLength": 100,
+                        "type": "string",
+                      },
+                      "dataUri": {
+                        "maxLength": 300000,
+                        "pattern": "^data\\:image\\/jpeg\\;base64\\,",
+                        "type": "string",
+                      },
+                      "position": {
+                        "$ref": "#/definitions/MangaPlanV3/properties/panels/items/properties/visualAid/anyOf/0/properties/position",
+                      },
+                      "type": {
+                        "const": "photo_clip",
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "type",
+                      "position",
+                      "dataUri",
+                      "caption",
+                    ],
+                    "type": "object",
+                  },
                 ],
               },
             },

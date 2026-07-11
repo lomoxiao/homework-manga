@@ -16,7 +16,13 @@ export function renderSafeVisualAid(spec: RendererSpec): string {
     case "geometry_shape": return geometryShape(spec);
     case "area_grid": return areaGrid(spec);
     case "angle_fan": return angleFan(spec);
+    case "photo_clip": return photoClip(spec);
   }
+}
+
+function photoClip(s: Extract<RendererSpec, { type: "photo_clip" }>) {
+  // dataUri はスキーマで data:image/jpeg;base64, 固定を検証済み。属性値はさらにエスケープする。
+  return `<figure class="visual-photo"><img src="${e(s.dataUri)}" alt="${e(s.caption)}"/><figcaption>${e(s.caption)}</figcaption></figure>`;
 }
 function barModel(s: Extract<RendererSpec, { type: "bar_model" }>) { const cells = Array.from({ length: s.groupCount }, (_, i) => `<rect x="${20 + i * 360 / s.groupCount}" y="25" width="${360 / s.groupCount}" height="48" fill="#e8f4ff" stroke="#334"/><text x="${20 + (i + .5) * 360 / s.groupCount}" y="55" text-anchor="middle">${e(number(s.perGroup))}</text>`).join(""); return `<svg viewBox="0 0 400 100" role="img" aria-label="equal groups">${cells}<text x="200" y="94" text-anchor="middle">${e(number(s.total))}</text></svg>`; }
 function fractionBar(s: Extract<RendererSpec, { type: "fraction_bar" }>) { const cells = Array.from({ length: s.denominator }, (_, i) => `<rect x="${20 + i * 360 / s.denominator}" y="25" width="${360 / s.denominator}" height="55" fill="${i < s.numerator ? "#ffd166" : "#fff"}" stroke="#334"/>`).join(""); return `<svg viewBox="0 0 400 105" role="img" aria-label="fraction bar">${cells}<text x="200" y="101" text-anchor="middle">${s.numerator}/${s.denominator}</text></svg>`; }

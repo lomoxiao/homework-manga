@@ -3,7 +3,7 @@ import {
 } from "@homework-manga/contracts/aiScenario";
 import { buildScenarioPrompt } from "@homework-manga/contracts/aiScenarioOutputJsonSchema";
 import type { ApprovedProblem } from "@homework-manga/contracts/approvedProblem";
-import type { MangaPlanV3 } from "@homework-manga/contracts/mangaPlan";
+import type { MangaPlanV3, PanelRole, RendererSpec } from "@homework-manga/contracts/mangaPlan";
 import { buildFallbackScenario } from "@homework-manga/scenario-core/fallbackScenario";
 import { verifyEquation } from "@homework-manga/scenario-core/mathVerifier";
 import { extractJsonObject } from "../services/extractJson.js";
@@ -29,6 +29,8 @@ export async function generateScenarioWithRepair(input: {
   approved: ApprovedProblem;
   run: ScenarioModelRun;
   maxAiAttempts?: number;
+  /** worker が用意した図解(実写真の切り抜き等)を該当 role のコマへ注入する。AI・フォールバック両経路に効く。 */
+  inject?: { role: PanelRole; spec: RendererSpec };
 }): Promise<ScenarioEngineResult> {
   const maxAttempts = input.maxAiAttempts ?? 3;
   const basePrompt = buildScenarioPrompt(input.approved);
@@ -51,7 +53,7 @@ export async function generateScenarioWithRepair(input: {
       const repaired = repairScenario(parsed, input.approved, { verifyEquation });
       if (repaired.ok) {
         const plan = compileMangaPlan({ jobId: input.jobId, approved: input.approved, scenario: repaired.scenario, notes: repaired.notes });
-        return { plan, attempts: attempt, usedFallback: false, retryHistory };
+        return { plan: injectVisualAid(plan, input.inject), attempts: attempt, usedFallback: false, retryHistory };
       }
       reasons = repaired.retry;
     } catch (error) {
@@ -63,5 +65,14 @@ export async function generateScenarioWithRepair(input: {
 
   const fallback = buildFallbackScenario(input.approved);
   const plan = compileMangaPlan({ jobId: input.jobId, approved: input.approved, scenario: fallback, notes: [], planSource: "fallback" });
-  return { plan, attempts: maxAttempts, usedFallback: true, retryHistory };
+  return { plan: injectVisualAid(plan, input.inject), attempts: maxAttempts, usedFallback: true, retryHistory };
+}
+
+/** 該当 role のコマに visualAid が無い場合のみ注入する(AI が付けた図解は上書きしない)。 */
+function injectVisualAid(plan: MangaPlanV3, inject?: { role: PanelRole; spec: RendererSpec }): MangaPlanV3 {
+  if (!inject) return plan;
+  const panels = plan.panels.map((panel) =>
+    panel.role === inject.role && !panel.visualAid ? { ...panel, visualAid: inject.spec } : panel
+  );
+  return { ...plan, panels };
 }

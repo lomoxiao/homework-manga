@@ -6,7 +6,11 @@ import { env } from "../env.js";
 import { claimJob, completePhase, ensureJobDir, failPhase } from "../queue/jobStore.js";
 import { runCodex } from "../services/codexRunner.js";
 import { notifySlack, reviewUrl } from "../services/notify.js";
+import { buildPhotoClip } from "../services/photoClip.js";
+import { resolveSourceImage } from "../services/sourceImage.js";
 import { generateScenarioWithRepair, type ScenarioModelRun } from "./scenarioEngine.js";
+import type { HomeworkJobV3 } from "@homework-manga/contracts/homeworkJob";
+import type { ApprovedProblem } from "@homework-manga/contracts/approvedProblem";
 
 export async function processScriptingJob(jobId: string): Promise<void> {
   const job = await claimJob(jobId, "scripting");
@@ -32,7 +36,8 @@ export async function processScriptingJob(jobId: string): Promise<void> {
           return raw.result;
         };
 
-    const result = await generateScenarioWithRepair({ jobId: job.id, approved: approved.value, run });
+    const inject = await preparePhotoClipInjection(job, approved.value, jobDir);
+    const result = await generateScenarioWithRepair({ jobId: job.id, approved: approved.value, run, inject });
     await completePhase(job, "ready", {
       "artifacts/mangaPlan": packEnvelope(mangaPlanV3Schema, MANGA_PLAN_VERSION, result.plan)
     });
@@ -42,6 +47,21 @@ export async function processScriptingJob(jobId: string): Promise<void> {
       : `まんが教材ができあがりました！\n${reviewUrl(job.id)}`);
   } catch (error) {
     await failPhase(job, "INTERNAL_ERROR", error);
+  }
+}
+
+/** 解析済み figures があれば実写真の切り抜きを error_location コマ用に用意する。失敗しても漫画生成は続行。 */
+async function preparePhotoClipInjection(job: HomeworkJobV3, approved: ApprovedProblem, jobDir: string) {
+  if (!approved.figures.length) return undefined;
+  try {
+    const imagePath = await resolveSourceImage(job, jobDir);
+    const spec = await buildPhotoClip({ figures: approved.figures, imagePath });
+    if (!spec) return undefined;
+    console.log(`[scripting] photo_clip injected job=${job.id} bytes=${spec.type === "photo_clip" ? spec.dataUri.length : 0}`);
+    return { role: "error_location" as const, spec };
+  } catch (error) {
+    console.warn(`[scripting] photo_clip をスキップします job=${job.id}: ${error instanceof Error ? error.message : String(error)}`);
+    return undefined;
   }
 }
 

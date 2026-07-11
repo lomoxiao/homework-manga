@@ -41,4 +41,25 @@ describe("MangaPlan 2.1 visual renderer", () => {
     expect(html).toContain("3 × 2 = 6");
   });
   it("rejects unknown and removed renderers", () => { for (const type of ["area_model", "ratio_diagram", "geometry", "clock", "place_value", "unit_conversion", "bar_chart", "line_chart"]) expect(visualAidSpecSchema.safeParse({ type }).success).toBe(false); });
+  it("renders photo_clip as figure with caption", () => {
+    const html = renderSafeVisualAid(visualAidSpecSchema.parse({
+      type: "photo_clip", position: "center",
+      dataUri: "data:image/jpeg;base64,/9j/AAAA", caption: "きみのプリントのここ！"
+    }));
+    expect(html).toContain('<figure class="visual-photo">');
+    expect(html).toContain('src="data:image/jpeg;base64,/9j/AAAA"');
+    expect(html).toContain("<figcaption>きみのプリントのここ！</figcaption>");
+  });
+  it("escapes markup in photo_clip caption", () => {
+    const html = renderSafeVisualAid(visualAidSpecSchema.parse({
+      type: "photo_clip", position: "center",
+      dataUri: "data:image/jpeg;base64,AAAA", caption: '<img onerror="x">'
+    }));
+    expect(html).not.toContain("<img onerror");
+    expect(html).toContain("&lt;img");
+  });
+  it("rejects photo_clip with a non-jpeg data uri", () => {
+    expect(visualAidSpecSchema.safeParse({ type: "photo_clip", position: "center", dataUri: "data:image/png;base64,AAAA", caption: "x" }).success).toBe(false);
+    expect(visualAidSpecSchema.safeParse({ type: "photo_clip", position: "center", dataUri: "https://example.com/x.jpg", caption: "x" }).success).toBe(false);
+  });
 });
