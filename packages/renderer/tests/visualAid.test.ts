@@ -18,6 +18,18 @@ describe("MangaPlan 2.1 visual renderer", () => {
     ] as const;
     for (const input of specs) { const html = renderSafeVisualAid(visualAidSpecSchema.parse(input)); expect(html).not.toMatch(/NaN|Infinity/); }
   });
+  it("reduces number line tick labels instead of showing unreduced fractions", () => {
+    const html = renderSafeVisualAid(visualAidSpecSchema.parse({
+      type: "number_line", position: "center",
+      min: { numerator: 0, denominator: 1 }, max: { numerator: 1400, denominator: 1 },
+      tickCount: 2, marks: []
+    }));
+    // 0..1400 を2目盛りで割ると 0, 700, 1400。以前は 0/2, 1400/2, 2800/2 と出ていた。
+    expect(html).toContain(">0<");
+    expect(html).toContain(">700<");
+    expect(html).toContain(">1400<");
+    expect(html).not.toContain("/2");
+  });
   it("escapes markup in geometry labels", () => {
     const html = renderSafeVisualAid(visualAidSpecSchema.parse({
       type: "geometry_shape", position: "center", shape: "square",

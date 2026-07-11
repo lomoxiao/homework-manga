@@ -1,9 +1,14 @@
 import { rendererSpecSchema, type RendererSpec } from "@homework-manga/contracts/mangaPlan";
+import { normalizeRational } from "@homework-manga/contracts/rational";
 import { escapeHtml } from "../utils";
 
 export const visualAidSpecSchema = rendererSpecSchema;
 const e = (value: unknown) => escapeHtml(String(value ?? ""));
-const number = (v: { numerator: number; denominator: number }) => v.denominator === 1 ? String(v.numerator) : `${v.numerator}/${v.denominator}`;
+// 目盛りラベル等は未約分の分数(例 1400/2)を渡してくることがあるため、表示前に既約へ直す。
+const number = (v: { numerator: number; denominator: number }) => {
+  const r = normalizeRational(v.numerator, v.denominator);
+  return r.denominator === 1 ? String(r.numerator) : `${r.numerator}/${r.denominator}`;
+};
 const numeric = (v: { numerator: number; denominator: number }) => v.numerator / v.denominator;
 
 export function renderSafeVisualAid(spec: RendererSpec): string {
