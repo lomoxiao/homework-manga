@@ -1,15 +1,20 @@
 import { useEffect, useState } from "preact/hooks";
 import { firebaseConfigured, loginWithGoogle, observeAuth, observeMyJobs, type HomeworkJobV3, type User } from "../services/firebaseClient";
 import { parentPhaseView } from "../phaseLabels";
+import { AuthRecoveryScreen, useAuthWatchdog } from "../AuthWatchdog";
 import { UploadCard } from "./UploadCard";
 import { JobDetail } from "./JobDetail";
 
 export function ParentApp() {
   const user = useAuth();
+  const authTimedOut = useAuthWatchdog(user === undefined);
   if (!firebaseConfigured) {
     return <section class="card"><h2>Firebase設定が必要です</h2><p>VITE_FIREBASE_* を設定して再ビルドしてください。</p></section>;
   }
-  if (user === undefined) return <div class="progress-screen"><div class="spinner" /></div>;
+  if (user === undefined) {
+    if (authTimedOut) return <AuthRecoveryScreen />;
+    return <div class="progress-screen"><div class="spinner" /></div>;
+  }
   if (!user) {
     return (
       <section class="card auth-screen">

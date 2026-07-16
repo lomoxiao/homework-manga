@@ -3,6 +3,7 @@ import { unpackEnvelope } from "@homework-manga/contracts/firebaseCodec";
 import { mangaPlanV3Schema, MANGA_PLAN_VERSION, type MangaPlanV3 } from "@homework-manga/contracts/mangaPlan";
 import { firebaseConfigured, loginWithGoogle, observeAuth, observeMyJobs, recordKidsRead, type HomeworkJobV3, type User } from "../services/firebaseClient";
 import { kidsPhaseView } from "../phaseLabels";
+import { AuthRecoveryScreen, useAuthWatchdog } from "../AuthWatchdog";
 import { PanelView, PlanViewer } from "../viewer/PlanViewer";
 
 /**
@@ -11,8 +12,12 @@ import { PanelView, PlanViewer } from "../viewer/PlanViewer";
  */
 export function KidsApp() {
   const user = useAuth();
+  const authTimedOut = useAuthWatchdog(user === undefined);
   if (!firebaseConfigured) return <section class="card kids-card"><p>じゅんびが できていないよ。おうちの人に きいてね。</p></section>;
-  if (user === undefined) return <div class="progress-screen kids"><div class="spinner" /></div>;
+  if (user === undefined) {
+    if (authTimedOut) return <AuthRecoveryScreen kids />;
+    return <div class="progress-screen kids"><div class="spinner" /></div>;
+  }
   if (!user) {
     return (
       <section class="card kids-card auth-screen">

@@ -59,6 +59,7 @@ button.primary, .button.primary { background: var(--primary); border-color: var(
 button.primary:not(:disabled):hover { background: var(--primary-dark); }
 button.big, .button.big { padding: 12px 28px; font-size: 17px; }
 button.danger { color: var(--error); border-color: #f3c8c8; }
+.recovery-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin: 14px 0; }
 .detail-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; align-items: center; }
 .detail-actions.center { justify-content: center; }
 
